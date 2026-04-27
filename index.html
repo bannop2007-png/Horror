@@ -3,219 +3,234 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OmniConnect v1.0 | Unified Hub</title>
+    <title>Aura Sync | Terminal</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;500;700&display=swap');
         
-        :root {
-            --glass: rgba(15, 15, 15, 0.7);
-            --border: rgba(255, 255, 255, 0.1);
-        }
-
         body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            background: radial-gradient(circle at top left, #1e1b4b, #000000);
-            color: white;
+            font-family: 'Space Grotesk', sans-serif;
+            background: #050505;
+            color: #e0e0e0;
             height: 100vh;
             overflow: hidden;
         }
 
-        .glass-panel {
-            background: var(--glass);
-            backdrop-filter: blur(30px);
-            border: 1px solid var(--border);
+        .neo-glass {
+            background: rgba(20, 20, 25, 0.7);
+            backdrop-filter: blur(25px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 0 40px rgba(0,0,0,0.5);
         }
 
-        .chat-bubble {
-            max-width: 80%;
-            animation: slideIn 0.3s ease-out;
+        .accent-glow {
+            box-shadow: 0 0 15px rgba(99, 102, 241, 0.3);
         }
 
-        @keyframes slideIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+        .message-anim {
+            animation: slideUp 0.4s cubic-bezier(0.18, 0.89, 0.32, 1.28);
         }
 
-        .active-tab {
-            background: rgba(255, 255, 255, 0.1);
-            border-left: 3px solid #6366f1;
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px) scale(0.95); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
         }
 
-        /* Кастомный скроллбар */
-        ::-webkit-scrollbar { width: 4px; }
-        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 10px; }
+        .custom-scroll::-webkit-scrollbar { width: 3px; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #312e81; border-radius: 10px; }
     </style>
 </head>
-<body class="flex items-center justify-center p-0 md:p-6">
+<body class="flex items-center justify-center p-0 md:p-6 bg-[radial-gradient(ellipse_at_bottom_right,_var(--tw-gradient-stops))] from-indigo-900/20 via-black to-black">
 
-    <div class="glass-panel w-full h-full max-w-7xl flex overflow-hidden rounded-none md:rounded-[32px] shadow-2xl">
+    <div class="neo-glass w-full h-full max-w-7xl flex flex-col md:flex-row overflow-hidden rounded-none md:rounded-[40px]">
         
-        <aside class="w-20 md:w-64 border-r border-white/5 flex flex-col">
-            <div class="p-6 flex items-center gap-3">
-                <div class="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center">
-                    <i data-lucide="zap" class="text-white w-6 h-6"></i>
-                </div>
-                <span class="hidden md:block font-bold text-xl tracking-tight">OmniHub</span>
+        <aside class="w-full md:w-24 border-b md:border-b-0 md:border-r border-white/5 flex md:flex-col items-center py-4 md:py-10 gap-6 px-4">
+            <div class="w-12 h-12 bg-indigo-600 rounded-2xl flex items-center justify-center accent-glow mb-0 md:mb-6">
+                <i data-lucide="component" class="text-white w-7 h-7"></i>
             </div>
-
-            <nav class="flex-1 px-3 space-y-2">
-                <div onclick="setApp('wa')" id="nav-wa" class="active-tab flex items-center gap-4 p-4 rounded-2xl cursor-pointer transition hover:bg-white/5">
-                    <i data-lucide="message-square" class="text-green-400"></i>
-                    <span class="hidden md:block font-medium">WhatsApp</span>
-                </div>
-                <div onclick="setApp('ig')" id="nav-ig" class="flex items-center gap-4 p-4 rounded-2xl cursor-pointer transition hover:bg-white/5">
-                    <i data-lucide="instagram" class="text-pink-500"></i>
-                    <span class="hidden md:block font-medium">Instagram</span>
-                </div>
+            
+            <nav class="flex flex-row md:flex-col gap-4 flex-1 justify-center">
+                <button onclick="switchMode('chat')" id="btn-chat" class="p-4 rounded-2xl bg-indigo-600 text-white transition-all shadow-lg">
+                    <i data-lucide="message-square"></i>
+                </button>
+                <button onclick="switchMode('tasks')" id="btn-tasks" class="p-4 rounded-2xl text-white/40 hover:text-white transition-all">
+                    <i data-lucide="check-square"></i>
+                </button>
+                <button onclick="openExternal()" class="p-4 rounded-2xl text-white/40 hover:text-pink-500 transition-all">
+                    <i data-lucide="share-2"></i>
+                </button>
             </nav>
 
-            <div class="p-4 border-t border-white/5">
-                <div class="flex items-center gap-3 p-3 bg-white/5 rounded-2xl">
-                    <div class="w-8 h-8 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500"></div>
-                    <div class="hidden md:block overflow-hidden">
-                        <p class="text-xs font-bold truncate">User_2026</p>
-                        <p class="text-[10px] text-white/40">Online</p>
-                    </div>
-                </div>
-            </div>
+            <button class="p-4 rounded-2xl text-white/20 hover:text-white mt-auto hidden md:block">
+                <i data-lucide="settings"></i>
+            </button>
         </aside>
 
-        <main class="flex-1 flex flex-col">
-            <header class="h-20 px-8 flex items-center justify-between border-b border-white/5 bg-black/20">
+        <main class="flex-1 flex flex-col min-w-0">
+            <header class="h-20 px-8 flex items-center justify-between border-b border-white/5">
                 <div>
-                    <h2 id="app-title" class="text-xl font-bold">WhatsApp Messenger</h2>
-                    <p class="text-xs text-white/40">Синхронизировано через защищенный шлюз</p>
-                </div>
-                <div class="flex items-center gap-4">
-                    <button onclick="openExternal()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 rounded-xl text-sm font-semibold transition flex items-center gap-2">
-                        <i data-lucide="external-link" class="w-4 h-4"></i>
-                        <span>Открыть оригинал</span>
-                    </button>
+                    <h1 id="view-title" class="text-2xl font-bold tracking-tighter">AURA_SYNC // CHAT</h1>
+                    <div class="flex items-center gap-2">
+                        <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                        <span class="text-[10px] uppercase tracking-widest text-white/30">System Active</span>
+                    </div>
                 </div>
             </header>
 
             <div class="flex-1 flex overflow-hidden">
-                <div class="w-80 border-r border-white/5 hidden lg:flex flex-col bg-black/10">
-                    <div class="p-4">
-                        <input type="text" placeholder="Поиск диалогов..." class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-indigo-500">
-                    </div>
-                    <div class="flex-1 overflow-y-auto" id="contacts-list">
+                <div id="chat-view" class="flex-1 flex flex-col bg-black/20">
+                    <div id="chat-box" class="flex-1 overflow-y-auto p-6 space-y-4 custom-scroll">
                         </div>
-                </div>
-
-                <div class="flex-1 flex flex-col relative">
-                    <div id="messages-container" class="flex-1 p-6 overflow-y-auto space-y-4">
-                        </div>
-
-                    <div class="p-6 bg-black/40">
-                        <div class="flex items-center gap-4 bg-white/5 p-2 rounded-2xl border border-white/10">
-                            <button class="p-2 text-white/40 hover:text-white"><i data-lucide="plus"></i></button>
-                            <input id="msg-input" type="text" placeholder="Напишите сообщение..." class="flex-1 bg-transparent border-none outline-none text-sm p-2">
-                            <button onclick="sendMessage()" class="p-3 bg-indigo-600 rounded-xl text-white hover:scale-105 transition active:scale-95">
-                                <i data-lucide="send" class="w-5 h-5"></i>
+                    
+                    <div class="p-6 bg-white/[0.02]">
+                        <div class="flex gap-4 bg-white/5 p-2 rounded-3xl border border-white/10 focus-within:border-indigo-500/50 transition-all">
+                            <input id="chat-input" type="text" placeholder="Введите команду или сообщение..." class="flex-1 bg-transparent border-none outline-none px-4 text-sm">
+                            <button onclick="sendMsg()" class="w-12 h-12 bg-indigo-600 rounded-2xl flex items-center justify-center hover:scale-105 active:scale-95 transition-all">
+                                <i data-lucide="send" class="w-5 h-5 text-white"></i>
                             </button>
                         </div>
                     </div>
                 </div>
+
+                <div id="tasks-view" class="hidden flex-1 p-8 overflow-y-auto custom-scroll">
+                    <h3 class="text-xl font-bold mb-6">Текущие протоколы</h3>
+                    <div id="tasks-list" class="grid gap-4">
+                        </div>
+                </div>
             </div>
         </main>
+
+        <aside class="w-full md:w-80 border-t md:border-t-0 md:border-l border-white/5 bg-black/40 p-6 hidden lg:block">
+            <h4 class="text-xs font-bold text-white/30 uppercase tracking-[0.2em] mb-6">Quick Link Hub</h4>
+            <div class="space-y-3">
+                <a href="https://web.whatsapp.com" target="_blank" class="flex items-center justify-between p-4 bg-white/5 rounded-2xl hover:bg-green-500/10 transition-group group">
+                    <div class="flex items-center gap-3">
+                        <i data-lucide="message-circle" class="text-green-500"></i>
+                        <span class="text-sm font-medium">WhatsApp</span>
+                    </div>
+                    <i data-lucide="arrow-up-right" class="w-4 h-4 opacity-0 group-hover:opacity-100 transition-all"></i>
+                </a>
+                <a href="https://instagram.com" target="_blank" class="flex items-center justify-between p-4 bg-white/5 rounded-2xl hover:bg-pink-500/10 transition-group group">
+                    <div class="flex items-center gap-3">
+                        <i data-lucide="instagram" class="text-pink-500"></i>
+                        <span class="text-sm font-medium">Instagram</span>
+                    </div>
+                    <i data-lucide="arrow-up-right" class="w-4 h-4 opacity-0 group-hover:opacity-100 transition-all"></i>
+                </a>
+            </div>
+        </aside>
     </div>
 
     <script>
         lucide.createIcons();
 
-        let currentApp = 'wa';
-        const messages = {
-            wa: [{ sender: 'System', text: 'Добро пожаловать в защищенный чат WhatsApp', time: '10:00' }],
-            ig: [{ sender: 'System', text: 'Ваша лента Instagram обновлена', time: '10:05' }]
-        };
-
-        // Звуковой движок
+        // --- ЗВУКОВОЙ ДВИЖОК ---
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        function playUINoise(freq, type) {
+        function playSfx(freq, type, duration = 0.1) {
             const osc = audioCtx.createOscillator();
             const gain = audioCtx.createGain();
-            osc.type = type || 'sine';
+            osc.type = type;
             osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-            gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
+            gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
             osc.connect(gain);
             gain.connect(audioCtx.destination);
             osc.start();
-            osc.stop(audioCtx.currentTime + 0.2);
+            osc.stop(audioCtx.currentTime + duration);
         }
 
-        function setApp(app) {
-            currentApp = app;
-            playUINoise(440, 'triangle');
-            
-            // UI Updates
-            document.getElementById('nav-wa').classList.toggle('active-tab', app === 'wa');
-            document.getElementById('nav-ig').classList.toggle('active-tab', app === 'ig');
-            document.getElementById('app-title').innerText = app === 'wa' ? 'WhatsApp Messenger' : 'Instagram Direct';
-            
-            renderMessages();
-        }
+        // --- ЛОГИКА ЧАТА ---
+        let chatHistory = JSON.parse(localStorage.getItem('aura_msgs')) || [
+            { role: 'ai', text: 'Система Aura Sync запущена. Ожидаю указаний.' }
+        ];
 
-        function renderMessages() {
-            const container = document.getElementById('messages-container');
-            container.innerHTML = messages[currentApp].map(m => `
-                <div class="flex ${m.sender === 'You' ? 'justify-end' : 'justify-start'}">
-                    <div class="chat-bubble p-4 rounded-2xl ${m.sender === 'You' ? 'bg-indigo-600 text-white' : 'bg-white/10 text-white/90'}">
+        function renderChat() {
+            const box = document.getElementById('chat-box');
+            box.innerHTML = chatHistory.map(m => `
+                <div class="flex ${m.role === 'user' ? 'justify-end' : 'justify-start'} message-anim">
+                    <div class="max-w-[80%] p-4 rounded-3xl ${m.role === 'user' ? 'bg-indigo-600 text-white rounded-tr-none' : 'bg-white/5 text-white/80 rounded-tl-none border border-white/5'}">
                         <p class="text-sm">${m.text}</p>
-                        <span class="text-[10px] opacity-40 mt-1 block">${m.time}</span>
                     </div>
                 </div>
             `).join('');
-            container.scrollTop = container.scrollHeight;
+            box.scrollTop = box.scrollHeight;
         }
 
-        function sendMessage() {
-            const input = document.getElementById('msg-input');
+        function sendMsg() {
+            const input = document.getElementById('chat-input');
             if(!input.value) return;
 
-            playUINoise(880, 'sine');
-            messages[currentApp].push({
-                sender: 'You',
-                text: input.value,
-                time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
-            });
+            playSfx(600, 'sine');
+            chatHistory.push({ role: 'user', text: input.value });
+            localStorage.setItem('aura_msgs', JSON.stringify(chatHistory));
             
+            const userText = input.value.toLowerCase();
             input.value = '';
-            renderMessages();
+            renderChat();
 
-            // Имитация ответа через секунду
+            // Маленький "ИИ" ответ
             setTimeout(() => {
-                playUINoise(660, 'sine');
-                messages[currentApp].push({
-                    sender: 'Bot',
-                    text: 'Сообщение доставлено и зашифровано.',
-                    time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
-                });
-                renderMessages();
-            }, 1000);
+                playSfx(400, 'triangle', 0.2);
+                let reply = "Запрос обработан. Данные сохранены в локальном узле.";
+                if(userText.includes("привет")) reply = "Приветствую! Чем сегодня займемся?";
+                
+                chatHistory.push({ role: 'ai', text: reply });
+                localStorage.setItem('aura_msgs', JSON.stringify(chatHistory));
+                renderChat();
+            }, 800);
         }
 
-        function openExternal() {
-            const url = currentApp === 'wa' ? 'https://web.whatsapp.com' : 'https://www.instagram.com/direct/inbox/';
-            window.open(url, '_blank', 'width=1000,height=800');
+        // --- ПЕРЕКЛЮЧЕНИЕ РЕЖИМОВ ---
+        function switchMode(mode) {
+            playSfx(200, 'square', 0.05);
+            const isChat = mode === 'chat';
+            document.getElementById('chat-view').classList.toggle('hidden', !isChat);
+            document.getElementById('tasks-view').classList.toggle('hidden', isChat);
+            document.getElementById('view-title').innerText = isChat ? 'AURA_SYNC // CHAT' : 'AURA_SYNC // TASKS';
+            
+            document.getElementById('btn-chat').className = isChat ? 'p-4 rounded-2xl bg-indigo-600 text-white shadow-lg' : 'p-4 rounded-2xl text-white/40';
+            document.getElementById('btn-tasks').className = !isChat ? 'p-4 rounded-2xl bg-indigo-600 text-white shadow-lg' : 'p-4 rounded-2xl text-white/40';
+            
+            if(!isChat) renderTasks();
         }
 
-        // Рендер демо-контактов
-        const contacts = ['Александр', 'Дизайн Группа', 'Мария', 'Work Chat'];
-        document.getElementById('contacts-list').innerHTML = contacts.map(c => `
-            <div class="p-4 flex items-center gap-3 hover:bg-white/5 cursor-pointer border-b border-white/5">
-                <div class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-xs">${c[0]}</div>
-                <div>
-                    <p class="text-sm font-semibold">${c}</p>
-                    <p class="text-[10px] text-white/30">Последнее сообщение...</p>
+        // --- ЗАДАЧИ ---
+        let tasks = JSON.parse(localStorage.getItem('aura_tasks')) || ["Создать крутой UI", "Настроить звуки"];
+        function renderTasks() {
+            const list = document.getElementById('tasks-list');
+            list.innerHTML = tasks.map((t, i) => `
+                <div class="p-4 bg-white/5 border border-white/5 rounded-2xl flex items-center justify-between group hover:border-indigo-500/30 transition-all">
+                    <span class="text-sm">${t}</span>
+                    <button onclick="deleteTask(${i})" class="text-white/20 hover:text-red-500"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
                 </div>
-            </div>
-        `).join('');
+            `).join('') + `
+                <button onclick="addTask()" class="p-4 border border-dashed border-white/10 rounded-2xl text-white/30 hover:text-white transition-all text-sm">+ Добавить новый протокол</button>
+            `;
+            lucide.createIcons();
+        }
 
-        renderMessages();
+        function addTask() {
+            const t = prompt("Название задачи:");
+            if(t) {
+                tasks.push(t);
+                localStorage.setItem('aura_tasks', JSON.stringify(tasks));
+                renderTasks();
+            }
+        }
+
+        function deleteTask(i) {
+            tasks.splice(i, 1);
+            localStorage.setItem('aura_tasks', JSON.stringify(tasks));
+            renderTasks();
+        }
+
+        // Слушатель Enter
+        document.getElementById('chat-input').addEventListener('keypress', (e) => {
+            if(e.key === 'Enter') sendMsg();
+        });
+
+        window.onload = renderChat;
     </script>
 </body>
 </html>
