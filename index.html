@@ -3,217 +3,217 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OmniCord | Discord Style Hub</title>
+    <title>Elysium | Private Terminal</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Plus+Jakarta+Sans:wght@300;400;600&display=swap');
         
         body {
-            font-family: 'Inter', sans-serif;
-            background-color: #1e1f22;
-            color: #dbdee1;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #0a0a0b;
+            color: #a1a1aa;
             height: 100vh;
             overflow: hidden;
         }
 
-        /* Цвета Discord */
-        .bg-guilds { background-color: #1e1f22; }
-        .bg-channels { background-color: #2b2d31; }
-        .bg-chat { background-color: #313338; }
-        .bg-members { background-color: #2b2d31; }
-        
-        .guild-icon {
-            transition: all 0.2s ease;
-            border-radius: 50%;
-        }
-        .guild-icon:hover {
-            border-radius: 30%;
-            background-color: #5865f2;
-            color: white;
-        }
-        .guild-icon.active {
-            border-radius: 30%;
-            background-color: #5865f2;
-            color: white;
+        .elite-border {
+            border: 1px solid rgba(255, 255, 255, 0.05);
         }
 
-        .channel-link:hover {
-            background-color: #3f4147;
-            color: #f2f3f5;
+        .gold-text {
+            background: linear-gradient(to right, #d4af37, #f4e07d);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-family: 'Cinzel', serif;
         }
-        
-        .custom-scroll::-webkit-scrollbar { width: 8px; }
-        .custom-scroll::-webkit-scrollbar-track { background: transparent; }
-        .custom-scroll::-webkit-scrollbar-thumb { background: #1a1b1e; border-radius: 10px; }
+
+        .sui-gradient {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(168, 85, 247, 0.1));
+            border: 1px solid rgba(168, 85, 247, 0.2);
+        }
+
+        .chat-input-focus:focus-within {
+            border-color: rgba(212, 175, 55, 0.5);
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.1);
+        }
+
+        .msg-anim {
+            animation: fadeInBlur 0.5s ease-out forwards;
+        }
+
+        @keyframes fadeInBlur {
+            from { opacity: 0; filter: blur(10px); transform: translateY(10px); }
+            to { opacity: 1; filter: blur(0); transform: translateY(0); }
+        }
+
+        ::-webkit-scrollbar { width: 3px; }
+        ::-webkit-scrollbar-thumb { background: #27272a; border-radius: 10px; }
     </style>
 </head>
-<body class="flex">
+<body class="flex items-center justify-center p-0 md:p-10">
 
-    <nav class="bg-guilds w-[72px] flex flex-col items-center py-3 gap-2 border-r border-black/20">
-        <div class="guild-icon active w-12 h-12 bg-[#313338] flex items-center justify-center cursor-pointer text-[#5865f2] mb-2">
-            <i data-lucide="message-square"></i>
-        </div>
-        <div class="w-8 h-[2px] bg-[#35363c] mb-2"></div>
-        <div onclick="playUISound('click')" class="guild-icon w-12 h-12 bg-[#313338] flex items-center justify-center cursor-pointer hover:text-white transition-all">
-            <i data-lucide="plus"></i>
-        </div>
-        <div onclick="playUISound('click')" class="guild-icon w-12 h-12 bg-[#313338] flex items-center justify-center cursor-pointer hover:text-white transition-all">
-            <i data-lucide="compass"></i>
-        </div>
-    </nav>
-
-    <aside class="bg-channels w-60 flex flex-col">
-        <header class="h-12 shadow-sm flex items-center px-4 font-bold text-white border-b border-black/10">
-            OmniHub Project
-        </header>
+    <div class="w-full h-full max-w-[1400px] bg-[#0e0e10] elite-border rounded-[40px] flex overflow-hidden shadow-[0_0_100px_rgba(0,0,0,1)]">
         
-        <div class="flex-1 overflow-y-auto py-4 px-2 space-y-4">
-            <div>
-                <div class="text-[12px] font-bold uppercase text-[#949ba4] px-2 mb-1 flex justify-between items-center">
-                    <span>Текстовые каналы</span>
-                    <i data-lucide="plus" class="w-3 h-3 cursor-pointer"></i>
+        <aside class="w-24 border-r border-white/5 flex flex-col items-center py-10 gap-10">
+            <div class="text-2xl font-bold gold-text">E</div>
+            
+            <nav class="flex flex-col gap-8">
+                <button onclick="changeView('main')" class="text-white/20 hover:text-white transition-all"><i data-lucide="home"></i></button>
+                <button onclick="changeView('sui')" class="text-indigo-400 hover:scale-110 transition-all drop-shadow-[0_0_8px_rgba(99,102,241,0.5)]"><i data-lucide="sparkles"></i></button>
+                <button class="text-white/20 hover:text-white transition-all"><i data-lucide="folder-kanban"></i></button>
+            </nav>
+
+            <div class="mt-auto mb-4">
+                <div class="w-10 h-10 rounded-full border border-white/10 p-1">
+                    <div class="w-full h-full bg-gradient-to-tr from-zinc-800 to-zinc-600 rounded-full"></div>
                 </div>
-                <div class="space-y-0.5">
-                    <div onclick="switchChannel('general')" class="channel-link flex items-center gap-2 p-2 rounded-md cursor-pointer text-[#949ba4] bg-[#3f4147] text-white">
-                        <i data-lucide="hash" class="w-4 h-4"></i> general
+            </div>
+        </aside>
+
+        <main class="flex-1 flex flex-col">
+            <header class="h-24 px-12 flex items-center justify-between border-b border-white/5">
+                <div>
+                    <h2 id="header-title" class="text-xs uppercase tracking-[0.5em] text-white/30 font-bold">Workspace // Central</h2>
+                    <h1 id="header-main" class="text-xl text-white font-light">Добро пожаловать в <span class="gold-text">Elysium</span></h1>
+                </div>
+                <div class="flex items-center gap-6">
+                    <div class="text-right hidden md:block">
+                        <p class="text-[10px] text-white/20 uppercase tracking-widest">System Status</p>
+                        <p class="text-xs text-green-500/80 font-medium">Optimal Encryption</p>
                     </div>
-                    <div onclick="switchChannel('dev')" class="channel-link flex items-center gap-2 p-2 rounded-md cursor-pointer text-[#949ba4]">
-                        <i data-lucide="hash" class="w-4 h-4"></i> development
+                    <i data-lucide="command" class="text-white/10 w-5 h-5"></i>
+                </div>
+            </header>
+
+            <div class="flex-1 flex overflow-hidden">
+                <div class="flex-1 flex flex-col relative">
+                    <div id="chat-box" class="flex-1 overflow-y-auto p-12 space-y-8 custom-scroll">
+                        </div>
+
+                    <div class="p-10">
+                        <div class="max-w-3xl mx-auto flex items-center gap-4 bg-white/[0.02] border border-white/5 rounded-2xl px-6 py-4 chat-input-focus transition-all">
+                            <input id="user-input" type="text" placeholder="Задайте вопрос SUI AI..." class="bg-transparent border-none outline-none flex-1 text-sm text-white/80 placeholder:text-white/10">
+                            <button onclick="handleSend()" class="text-white/20 hover:text-white transition-all">
+                                <i data-lucide="arrow-up-right" class="w-5 h-5"></i>
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
+        </main>
 
-        <div class="bg-[#232428] p-2 flex items-center gap-2">
-            <div class="relative">
-                <div class="w-8 h-8 bg-indigo-500 rounded-full"></div>
-                <div class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-[#232428] rounded-full"></div>
-            </div>
-            <div class="flex-1 overflow-hidden">
-                <p class="text-sm font-bold text-white truncate">User_2026</p>
-                <p class="text-[11px] text-[#949ba4]">#0001</p>
-            </div>
-            <div class="flex text-[#b5bac1] gap-1">
-                <i data-lucide="mic" class="w-4 h-4 cursor-pointer hover:text-white"></i>
-                <i data-lucide="settings" class="w-4 h-4 cursor-pointer hover:text-white"></i>
-            </div>
-        </div>
-    </aside>
-
-    <main class="bg-chat flex-1 flex flex-col">
-        <header class="h-12 flex items-center px-4 border-b border-black/10 shadow-sm gap-2">
-            <i data-lucide="hash" class="text-[#80848e] w-5 h-5"></i>
-            <span class="font-bold text-white" id="channel-name">general</span>
-        </header>
-
-        <div id="chat-messages" class="flex-1 overflow-y-auto p-4 space-y-6 custom-scroll">
-            </div>
-
-        <div class="px-4 pb-6">
-            <div class="bg-[#383a40] rounded-lg p-2 flex items-center gap-3">
-                <div class="p-2 bg-[#b5bac1] hover:bg-white rounded-full cursor-pointer text-[#313338] transition">
-                    <i data-lucide="plus" class="w-4 h-4"></i>
+        <aside id="sui-panel" class="w-80 border-l border-white/5 bg-black/20 p-8 hidden lg:block">
+            <div class="sui-gradient p-6 rounded-3xl mb-8">
+                <div class="flex items-center gap-3 mb-4">
+                    <div class="w-2 h-2 bg-indigo-500 rounded-full animate-ping"></div>
+                    <span class="text-xs font-bold text-indigo-300 uppercase tracking-tighter">SUI AI Active</span>
                 </div>
-                <input id="chat-input" type="text" placeholder="Написать в #general" class="bg-transparent border-none outline-none flex-1 text-[#dbdee1] py-2">
-                <div class="flex gap-3 px-2 text-[#b5bac1]">
-                    <i data-lucide="gift" class="cursor-pointer hover:text-white"></i>
-                    <i data-lucide="sticky-note" class="cursor-pointer hover:text-white"></i>
-                    <i data-lucide="smile" class="cursor-pointer hover:text-white"></i>
+                <p class="text-sm text-white/70 leading-relaxed">
+                    Я твой личный интеллект в этой системе. Знаю каждый символ кода.
+                </p>
+            </div>
+
+            <div class="space-y-6">
+                <h4 class="text-[10px] font-bold text-white/20 uppercase tracking-[0.2em]">История обновлений</h4>
+                <div class="space-y-4">
+                    <div class="flex gap-3">
+                        <div class="w-1 h-1 bg-gold-500 rounded-full mt-2 shrink-0"></div>
+                        <p class="text-xs text-white/50">Добавлен премиальный дизайн Elysium</p>
+                    </div>
+                    <div class="flex gap-3">
+                        <div class="w-1 h-1 bg-gold-500 rounded-full mt-2 shrink-0"></div>
+                        <p class="text-xs text-white/50">Интегрирован SUI AI ассистент</p>
+                    </div>
+                    <div class="flex gap-3">
+                        <div class="w-1 h-1 bg-gold-500 rounded-full mt-2 shrink-0"></div>
+                        <p class="text-xs text-white/50">Удалены лишние звуковые шумы</p>
+                    </div>
                 </div>
             </div>
-        </div>
-    </main>
-
-    <aside class="bg-members w-60 hidden lg:flex flex-col p-4">
-        <h3 class="text-[12px] font-bold uppercase text-[#949ba4] mb-4">В сети — 1</h3>
-        <div class="flex items-center gap-3 p-2 rounded-md hover:bg-[#3f4147] cursor-pointer group">
-            <div class="relative">
-                <div class="w-8 h-8 bg-indigo-500 rounded-full"></div>
-                <div class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-[#2b2d31] rounded-full"></div>
-            </div>
-            <span class="text-[#949ba4] group-hover:text-white font-medium">User_2026</span>
-        </div>
-    </aside>
+        </aside>
+    </div>
 
     <script>
         lucide.createIcons();
 
-        // Адекватные звуки (стандартные UI звуки)
-        const sounds = {
-            click: new Audio('https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3'), // Мягкий щелчок
-            message: new Audio('https://assets.mixkit.co/active_storage/sfx/2357/2357-preview.mp3'), // Звук сообщения
-            send: new Audio('https://assets.mixkit.co/active_storage/sfx/2354/2354-preview.mp3') // Вуш отправки
+        // Состояние системы
+        const systemInfo = {
+            version: "1.2.0-Elite",
+            features: [
+                "Премиальный интерфейс Elysium (не копия Дискорда)",
+                "Персональный бот SUI AI",
+                "Система 'Тихая роскошь' с золотыми акцентами",
+                "Полная приватность (локальная база данных)",
+                "Улучшенные анимации появления контента"
+            ],
+            devDate: "27 Апреля 2026"
         };
 
-        // Настройка громкости
-        Object.values(sounds).forEach(s => s.volume = 0.2);
+        let messages = [
+            { role: 'sui', text: 'Здравствуй. Я SUI AI. Твой Elysium готов к работе. Что ты хочешь узнать о своей системе?' }
+        ];
 
-        function playUISound(name) {
-            sounds[name].currentTime = 0;
-            sounds[name].play().catch(e => console.log("Sound muted until interaction"));
-        }
-
-        let currentChannel = 'general';
-        const chatData = {
-            general: [{ user: 'System', text: 'Добро пожаловать в общий чат OmniCord!', time: '12:00' }],
-            dev: [{ user: 'System', text: 'Здесь обсуждаем разработку приложения.', time: '12:01' }]
-        };
-
-        function switchChannel(name) {
-            playUISound('click');
-            currentChannel = name;
-            document.getElementById('channel-name').innerText = name;
-            document.getElementById('chat-input').placeholder = `Написать в #${name}`;
-            renderMessages();
-        }
+        // Звук сообщения (мягкий)
+        const msgSound = new Audio('https://assets.mixkit.co/active_storage/sfx/2357/2357-preview.mp3');
+        msgSound.volume = 0.1;
 
         function renderMessages() {
-            const box = document.getElementById('chat-messages');
-            box.innerHTML = chatData[currentChannel].map(m => `
-                <div class="flex gap-4 group">
-                    <div class="w-10 h-10 bg-indigo-600 rounded-full flex-shrink-0"></div>
-                    <div>
-                        <div class="flex items-center gap-2">
-                            <span class="font-bold text-white hover:underline cursor-pointer">${m.user}</span>
-                            <span class="text-[10px] text-[#949ba4]">${m.time}</span>
+            const box = document.getElementById('chat-box');
+            box.innerHTML = messages.map(m => `
+                <div class="flex ${m.role === 'user' ? 'justify-end' : 'justify-start'} msg-anim">
+                    <div class="max-w-[70%]">
+                        <div class="flex items-center gap-2 mb-2 ${m.role === 'user' ? 'flex-row-reverse' : ''}">
+                            <span class="text-[10px] uppercase tracking-widest ${m.role === 'user' ? 'text-white/20' : 'gold-text'}">
+                                ${m.role === 'user' ? 'Владелец' : 'SUI AI'}
+                            </span>
                         </div>
-                        <p class="text-[#dbdee1] leading-relaxed">${m.text}</p>
+                        <div class="p-5 rounded-3xl text-sm leading-relaxed ${m.role === 'user' ? 'bg-white/5 text-white/90 rounded-tr-none' : 'sui-gradient text-white/80 rounded-tl-none'}">
+                            ${m.text}
+                        </div>
                     </div>
                 </div>
             `).join('');
             box.scrollTop = box.scrollHeight;
         }
 
-        function sendMessage() {
-            const input = document.getElementById('chat-input');
-            if(!input.value) return;
+        function handleSend() {
+            const input = document.getElementById('user-input');
+            const text = input.value.trim().toLowerCase();
+            if(!text) return;
 
-            playUISound('send');
-            chatData[currentChannel].push({
-                user: 'User_2026',
-                text: input.value,
-                time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
-            });
-            
-            const text = input.value;
+            messages.push({ role: 'user', text: input.value });
             input.value = '';
             renderMessages();
 
-            // Имитация ответа
+            // Логика SUI AI
             setTimeout(() => {
-                playUISound('message');
-                chatData[currentChannel].push({
-                    user: 'Bot',
-                    text: `Принял твой запрос: "${text}". Всё работает стабильно.`,
-                    time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
-                });
+                msgSound.play();
+                let response = "Я анализирую твой запрос... Для получения деталей о системе спроси 'что добавлено'.";
+                
+                if(text.includes("что добавлено") || text.includes("детали") || text.includes("обновления")) {
+                    response = `Вот подробности последнего обновления Elysium:<br><br>` + 
+                               systemInfo.features.map(f => `• ${f}`).join('<br>');
+                } else if (text.includes("привет") || text.includes("кто ты")) {
+                    response = "Я — SUI AI, твой персональный проводник в Elysium. Я помогу тебе управлять задачами и следить за обновлениями твоего кода.";
+                }
+
+                messages.push({ role: 'sui', text: response });
                 renderMessages();
-            }, 1000);
+            }, 800);
         }
 
-        document.getElementById('chat-input').addEventListener('keypress', (e) => {
-            if(e.key === 'Enter') sendMessage();
+        function changeView(view) {
+            const title = document.getElementById('header-main');
+            if(view === 'sui') {
+                title.innerHTML = "Диалог с <span class='gold-text'>SUI AI</span>";
+            } else {
+                title.innerHTML = "Добро пожаловать в <span class='gold-text'>Elysium</span>";
+            }
+        }
+
+        document.getElementById('user-input').addEventListener('keypress', (e) => {
+            if(e.key === 'Enter') handleSend();
         });
 
         window.onload = renderMessages;
