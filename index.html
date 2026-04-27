@@ -3,220 +3,195 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Elysium | Private Terminal</title>
+    <title>Elysium Imperial | Central Terminal</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Plus+Jakarta+Sans:wght@300;400;600&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Plus+Jakarta+Sans:wght@200;400;600&display=swap');
         
-        body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            background-color: #0a0a0b;
-            color: #a1a1aa;
-            height: 100vh;
-            overflow: hidden;
-        }
+        :root { --gold: #d4af37; --bg: #050505; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: #a1a1aa; height: 100vh; overflow: hidden; }
 
-        .elite-border {
-            border: 1px solid rgba(255, 255, 255, 0.05);
-        }
+        /* Элитные стили */
+        .glass { background: rgba(255, 255, 255, 0.02); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.05); }
+        .gold-glow { text-shadow: 0 0 10px rgba(212, 175, 55, 0.3); color: var(--gold); font-family: 'Cinzel', serif; }
+        .sui-aura { border: 1px solid rgba(99, 102, 241, 0.2); box-shadow: inset 0 0 20px rgba(99, 102, 241, 0.05); }
+        
+        /* Виджеты */
+        .widget-card { background: rgba(255,255,255,0.01); border-radius: 20px; padding: 15px; border: 1px solid rgba(255,255,255,0.03); }
+        
+        .msg-anim { animation: fadeInUp 0.4s ease-out forwards; }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
 
-        .gold-text {
-            background: linear-gradient(to right, #d4af37, #f4e07d);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            font-family: 'Cinzel', serif;
-        }
-
-        .sui-gradient {
-            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(168, 85, 247, 0.1));
-            border: 1px solid rgba(168, 85, 247, 0.2);
-        }
-
-        .chat-input-focus:focus-within {
-            border-color: rgba(212, 175, 55, 0.5);
-            box-shadow: 0 0 20px rgba(212, 175, 55, 0.1);
-        }
-
-        .msg-anim {
-            animation: fadeInBlur 0.5s ease-out forwards;
-        }
-
-        @keyframes fadeInBlur {
-            from { opacity: 0; filter: blur(10px); transform: translateY(10px); }
-            to { opacity: 1; filter: blur(0); transform: translateY(0); }
-        }
-
-        ::-webkit-scrollbar { width: 3px; }
-        ::-webkit-scrollbar-thumb { background: #27272a; border-radius: 10px; }
+        .drop-zone { border: 2px dashed rgba(212, 175, 55, 0.1); transition: 0.3s; }
+        .drop-zone:hover { border-color: var(--gold); background: rgba(212, 175, 55, 0.02); }
     </style>
 </head>
-<body class="flex items-center justify-center p-0 md:p-10">
+<body class="flex p-4 gap-4 h-screen">
 
-    <div class="w-full h-full max-w-[1400px] bg-[#0e0e10] elite-border rounded-[40px] flex overflow-hidden shadow-[0_0_100px_rgba(0,0,0,1)]">
+    <nav class="w-20 glass rounded-[30px] flex flex-col items-center py-8 gap-10">
+        <div class="gold-glow text-2xl font-bold">Σ</div>
+        <div class="flex flex-col gap-6 flex-1">
+            <button onclick="showSection('chat')" class="text-white/20 hover:text-white transition-all"><i data-lucide="message-square"></i></button>
+            <button onclick="showSection('files')" class="text-white/20 hover:text-white transition-all"><i data-lucide="folder"></i></button>
+            <button onclick="showSection('widgets')" class="text-white/20 hover:text-white transition-all"><i data-lucide="layout-grid"></i></button>
+        </div>
+        <button class="text-white/10 hover:text-red-500 transition-all"><i data-lucide="power"></i></button>
+    </nav>
+
+    <div class="flex-1 flex flex-col gap-4">
         
-        <aside class="w-24 border-r border-white/5 flex flex-col items-center py-10 gap-10">
-            <div class="text-2xl font-bold gold-text">E</div>
-            
-            <nav class="flex flex-col gap-8">
-                <button onclick="changeView('main')" class="text-white/20 hover:text-white transition-all"><i data-lucide="home"></i></button>
-                <button onclick="changeView('sui')" class="text-indigo-400 hover:scale-110 transition-all drop-shadow-[0_0_8px_rgba(99,102,241,0.5)]"><i data-lucide="sparkles"></i></button>
-                <button class="text-white/20 hover:text-white transition-all"><i data-lucide="folder-kanban"></i></button>
-            </nav>
-
-            <div class="mt-auto mb-4">
-                <div class="w-10 h-10 rounded-full border border-white/10 p-1">
-                    <div class="w-full h-full bg-gradient-to-tr from-zinc-800 to-zinc-600 rounded-full"></div>
-                </div>
-            </div>
-        </aside>
-
-        <main class="flex-1 flex flex-col">
-            <header class="h-24 px-12 flex items-center justify-between border-b border-white/5">
+        <header class="h-20 glass rounded-[25px] px-8 flex items-center justify-between">
+            <div class="flex items-center gap-6">
                 <div>
-                    <h2 id="header-title" class="text-xs uppercase tracking-[0.5em] text-white/30 font-bold">Workspace // Central</h2>
-                    <h1 id="header-main" class="text-xl text-white font-light">Добро пожаловать в <span class="gold-text">Elysium</span></h1>
+                    <p class="text-[10px] uppercase tracking-[0.3em] text-white/20">Terminal ID</p>
+                    <p class="text-sm font-mono text-white/80">ELY-2026-X</p>
                 </div>
-                <div class="flex items-center gap-6">
-                    <div class="text-right hidden md:block">
-                        <p class="text-[10px] text-white/20 uppercase tracking-widest">System Status</p>
-                        <p class="text-xs text-green-500/80 font-medium">Optimal Encryption</p>
-                    </div>
-                    <i data-lucide="command" class="text-white/10 w-5 h-5"></i>
+                <div class="h-8 w-[1px] bg-white/5"></div>
+                <div id="clock" class="text-lg font-light text-white/90">00:00:00</div>
+            </div>
+            
+            <div class="flex items-center gap-4">
+                <div class="widget-card flex items-center gap-3 py-2 px-4">
+                    <i data-lucide="trending-up" class="w-4 h-4 text-green-500"></i>
+                    <span class="text-xs text-white/60">BTC: <b class="text-white">$64,210</b></span>
                 </div>
-            </header>
-
-            <div class="flex-1 flex overflow-hidden">
-                <div class="flex-1 flex flex-col relative">
-                    <div id="chat-box" class="flex-1 overflow-y-auto p-12 space-y-8 custom-scroll">
-                        </div>
-
-                    <div class="p-10">
-                        <div class="max-w-3xl mx-auto flex items-center gap-4 bg-white/[0.02] border border-white/5 rounded-2xl px-6 py-4 chat-input-focus transition-all">
-                            <input id="user-input" type="text" placeholder="Задайте вопрос SUI AI..." class="bg-transparent border-none outline-none flex-1 text-sm text-white/80 placeholder:text-white/10">
-                            <button onclick="handleSend()" class="text-white/20 hover:text-white transition-all">
-                                <i data-lucide="arrow-up-right" class="w-5 h-5"></i>
-                            </button>
-                        </div>
-                    </div>
+                <div class="w-10 h-10 rounded-full border border-gold/30 p-1">
+                    <div class="w-full h-full bg-gradient-to-br from-gold/50 to-transparent rounded-full"></div>
                 </div>
             </div>
+        </header>
+
+        <main class="flex-1 glass rounded-[35px] overflow-hidden flex">
+            
+            <section id="chat-section" class="flex-1 flex flex-col">
+                <div id="chat-box" class="flex-1 overflow-y-auto p-10 space-y-6">
+                    </div>
+                
+                <div class="p-8">
+                    <div class="max-w-4xl mx-auto flex items-center gap-4 bg-white/5 border border-white/5 rounded-[25px] p-2 focus-within:border-gold/30 transition-all">
+                        <button onclick="startVoice()" class="p-4 text-white/20 hover:text-indigo-400 transition-all"><i data-lucide="mic"></i></button>
+                        <input id="user-input" type="text" placeholder="Запросить данные у SUI AI..." class="flex-1 bg-transparent border-none outline-none text-sm text-white">
+                        <button onclick="handleAction()" class="bg-indigo-600/20 hover:bg-indigo-600 text-indigo-400 hover:text-white p-4 rounded-[20px] transition-all">
+                            <i data-lucide="zap" class="w-5 h-5"></i>
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <section id="files-section" class="hidden flex-1 p-10 flex flex-col gap-6">
+                <h2 class="gold-glow text-xl">Cloud Archive</h2>
+                <div class="drop-zone flex-1 rounded-[30px] flex flex-col items-center justify-center text-white/20 gap-4">
+                    <i data-lucide="upload-cloud" class="w-12 h-12"></i>
+                    <p class="text-sm">Перетащите файлы сюда для шифрования</p>
+                </div>
+            </section>
         </main>
-
-        <aside id="sui-panel" class="w-80 border-l border-white/5 bg-black/20 p-8 hidden lg:block">
-            <div class="sui-gradient p-6 rounded-3xl mb-8">
-                <div class="flex items-center gap-3 mb-4">
-                    <div class="w-2 h-2 bg-indigo-500 rounded-full animate-ping"></div>
-                    <span class="text-xs font-bold text-indigo-300 uppercase tracking-tighter">SUI AI Active</span>
-                </div>
-                <p class="text-sm text-white/70 leading-relaxed">
-                    Я твой личный интеллект в этой системе. Знаю каждый символ кода.
-                </p>
-            </div>
-
-            <div class="space-y-6">
-                <h4 class="text-[10px] font-bold text-white/20 uppercase tracking-[0.2em]">История обновлений</h4>
-                <div class="space-y-4">
-                    <div class="flex gap-3">
-                        <div class="w-1 h-1 bg-gold-500 rounded-full mt-2 shrink-0"></div>
-                        <p class="text-xs text-white/50">Добавлен премиальный дизайн Elysium</p>
-                    </div>
-                    <div class="flex gap-3">
-                        <div class="w-1 h-1 bg-gold-500 rounded-full mt-2 shrink-0"></div>
-                        <p class="text-xs text-white/50">Интегрирован SUI AI ассистент</p>
-                    </div>
-                    <div class="flex gap-3">
-                        <div class="w-1 h-1 bg-gold-500 rounded-full mt-2 shrink-0"></div>
-                        <p class="text-xs text-white/50">Удалены лишние звуковые шумы</p>
-                    </div>
-                </div>
-            </div>
-        </aside>
     </div>
+
+    <aside class="w-80 flex flex-col gap-4">
+        <div class="glass rounded-[30px] p-6 sui-aura">
+            <div class="flex justify-between items-center mb-6">
+                <span class="text-xs font-bold gold-glow uppercase">SUI AI Core</span>
+                <span class="w-2 h-2 bg-indigo-500 rounded-full shadow-[0_0_10px_#6366f1]"></span>
+            </div>
+            <div class="text-sm text-white/60 leading-relaxed mb-4" id="sui-status">
+                Система готова. Все модули (Чат, Файлы, Виджеты) активны.
+            </div>
+            <div class="space-y-2">
+                <div class="h-1 bg-white/5 rounded-full overflow-hidden">
+                    <div class="w-3/4 h-full bg-indigo-500"></div>
+                </div>
+                <p class="text-[9px] text-white/20 uppercase tracking-widest">Memory Load: 74%</p>
+            </div>
+        </div>
+
+        <div class="glass rounded-[30px] flex-1 p-6 space-y-6">
+            <h3 class="text-[10px] font-bold text-white/30 uppercase tracking-[0.2em]">Environment</h3>
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-3xl text-white font-light">+22°C</p>
+                    <p class="text-xs text-white/40">Baku, Azerbaijan</p>
+                </div>
+                <i data-lucide="sun" class="w-8 h-8 text-yellow-500"></i>
+            </div>
+            <div class="h-[1px] bg-white/5"></div>
+            <h3 class="text-[10px] font-bold text-white/30 uppercase tracking-[0.2em]">New Updates</h3>
+            <div id="update-log" class="text-[11px] space-y-3">
+                </div>
+        </div>
+    </aside>
 
     <script>
         lucide.createIcons();
 
-        // Состояние системы
-        const systemInfo = {
-            version: "1.2.0-Elite",
-            features: [
-                "Премиальный интерфейс Elysium (не копия Дискорда)",
-                "Персональный бот SUI AI",
-                "Система 'Тихая роскошь' с золотыми акцентами",
-                "Полная приватность (локальная база данных)",
-                "Улучшенные анимации появления контента"
-            ],
-            devDate: "27 Апреля 2026"
-        };
+        // 1. Часы
+        setInterval(() => {
+            const now = new Date();
+            document.getElementById('clock').innerText = now.toLocaleTimeString();
+        }, 1000);
 
-        let messages = [
-            { role: 'sui', text: 'Здравствуй. Я SUI AI. Твой Elysium готов к работе. Что ты хочешь узнать о своей системе?' }
+        // 2. Логика SUI AI
+        let msgs = [
+            { role: 'sui', text: 'Центральный терминал Elysium Imperial активен. Я SUI AI, готова предоставить отчет об обновлениях или принять файлы.' }
         ];
 
-        // Звук сообщения (мягкий)
-        const msgSound = new Audio('https://assets.mixkit.co/active_storage/sfx/2357/2357-preview.mp3');
-        msgSound.volume = 0.1;
-
-        function renderMessages() {
+        function render() {
             const box = document.getElementById('chat-box');
-            box.innerHTML = messages.map(m => `
+            box.innerHTML = msgs.map(m => `
                 <div class="flex ${m.role === 'user' ? 'justify-end' : 'justify-start'} msg-anim">
-                    <div class="max-w-[70%]">
-                        <div class="flex items-center gap-2 mb-2 ${m.role === 'user' ? 'flex-row-reverse' : ''}">
-                            <span class="text-[10px] uppercase tracking-widest ${m.role === 'user' ? 'text-white/20' : 'gold-text'}">
-                                ${m.role === 'user' ? 'Владелец' : 'SUI AI'}
-                            </span>
-                        </div>
-                        <div class="p-5 rounded-3xl text-sm leading-relaxed ${m.role === 'user' ? 'bg-white/5 text-white/90 rounded-tr-none' : 'sui-gradient text-white/80 rounded-tl-none'}">
-                            ${m.text}
-                        </div>
+                    <div class="max-w-[80%] ${m.role === 'user' ? 'bg-white/5 border border-white/5 p-4 rounded-2xl' : 'sui-aura p-5 rounded-3xl bg-indigo-500/5 text-white/90'}">
+                        <p class="text-sm leading-relaxed">${m.text}</p>
                     </div>
                 </div>
             `).join('');
             box.scrollTop = box.scrollHeight;
         }
 
-        function handleSend() {
+        function handleAction() {
             const input = document.getElementById('user-input');
-            const text = input.value.trim().toLowerCase();
-            if(!text) return;
+            const val = input.value.trim().toLowerCase();
+            if(!val) return;
 
-            messages.push({ role: 'user', text: input.value });
+            msgs.push({ role: 'user', text: input.value });
             input.value = '';
-            renderMessages();
+            render();
 
-            // Логика SUI AI
             setTimeout(() => {
-                msgSound.play();
-                let response = "Я анализирую твой запрос... Для получения деталей о системе спроси 'что добавлено'.";
-                
-                if(text.includes("что добавлено") || text.includes("детали") || text.includes("обновления")) {
-                    response = `Вот подробности последнего обновления Elysium:<br><br>` + 
-                               systemInfo.features.map(f => `• ${f}`).join('<br>');
-                } else if (text.includes("привет") || text.includes("кто ты")) {
-                    response = "Я — SUI AI, твой персональный проводник в Elysium. Я помогу тебе управлять задачами и следить за обновлениями твоего кода.";
+                let res = "Команда принята. Ожидаю подключения API бэкенда.";
+                if(val.includes("что добавлено") || val.includes("детали")) {
+                    res = `<b>Отчет SUI AI:</b><br><br>
+                    1. <b>Imperial UI:</b> Полностью переработанный элитный интерфейс.<br>
+                    2. <b>Widgets:</b> Добавлены часы, крипто-трекер и погода.<br>
+                    3. <b>Voice Prep:</b> Интерфейс готов к голосовому вводу.<br>
+                    4. <b>Cloud:</b> Секция для хранения ваших файлов.<br>
+                    5. <b>SUI Logic:</b> Я теперь могу фильтровать ваши запросы по категориям.`;
                 }
-
-                messages.push({ role: 'sui', text: response });
-                renderMessages();
-            }, 800);
+                msgs.push({ role: 'sui', text: res });
+                render();
+            }, 600);
         }
 
-        function changeView(view) {
-            const title = document.getElementById('header-main');
-            if(view === 'sui') {
-                title.innerHTML = "Диалог с <span class='gold-text'>SUI AI</span>";
-            } else {
-                title.innerHTML = "Добро пожаловать в <span class='gold-text'>Elysium</span>";
-            }
+        // 3. Переключение разделов
+        function showSection(name) {
+            document.getElementById('chat-section').classList.toggle('hidden', name !== 'chat');
+            document.getElementById('files-section').classList.toggle('hidden', name !== 'files');
+            // Звук переключения (мягкий)
+            const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3');
+            audio.volume = 0.1;
+            audio.play();
         }
 
-        document.getElementById('user-input').addEventListener('keypress', (e) => {
-            if(e.key === 'Enter') handleSend();
-        });
+        // 4. Update Log (Авто-заполнение)
+        const updates = ["UI Optimization", "SUI AI Memory Link", "Security Protocol v4"];
+        document.getElementById('update-log').innerHTML = updates.map(u => `
+            <div class="flex items-center gap-2">
+                <div class="w-1 h-1 bg-gold rounded-full"></div>
+                <span class="text-white/40">${u}</span>
+            </div>
+        `).join('');
 
-        window.onload = renderMessages;
+        window.onload = render;
     </script>
 </body>
 </html>
