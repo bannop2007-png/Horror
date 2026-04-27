@@ -3,234 +3,220 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aura Sync | Terminal</title>
+    <title>OmniCord | Discord Style Hub</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;500;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
         
         body {
-            font-family: 'Space Grotesk', sans-serif;
-            background: #050505;
-            color: #e0e0e0;
+            font-family: 'Inter', sans-serif;
+            background-color: #1e1f22;
+            color: #dbdee1;
             height: 100vh;
             overflow: hidden;
         }
 
-        .neo-glass {
-            background: rgba(20, 20, 25, 0.7);
-            backdrop-filter: blur(25px);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            box-shadow: 0 0 40px rgba(0,0,0,0.5);
+        /* Цвета Discord */
+        .bg-guilds { background-color: #1e1f22; }
+        .bg-channels { background-color: #2b2d31; }
+        .bg-chat { background-color: #313338; }
+        .bg-members { background-color: #2b2d31; }
+        
+        .guild-icon {
+            transition: all 0.2s ease;
+            border-radius: 50%;
+        }
+        .guild-icon:hover {
+            border-radius: 30%;
+            background-color: #5865f2;
+            color: white;
+        }
+        .guild-icon.active {
+            border-radius: 30%;
+            background-color: #5865f2;
+            color: white;
         }
 
-        .accent-glow {
-            box-shadow: 0 0 15px rgba(99, 102, 241, 0.3);
+        .channel-link:hover {
+            background-color: #3f4147;
+            color: #f2f3f5;
         }
-
-        .message-anim {
-            animation: slideUp 0.4s cubic-bezier(0.18, 0.89, 0.32, 1.28);
-        }
-
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(20px) scale(0.95); }
-            to { opacity: 1; transform: translateY(0) scale(1); }
-        }
-
-        .custom-scroll::-webkit-scrollbar { width: 3px; }
-        .custom-scroll::-webkit-scrollbar-thumb { background: #312e81; border-radius: 10px; }
+        
+        .custom-scroll::-webkit-scrollbar { width: 8px; }
+        .custom-scroll::-webkit-scrollbar-track { background: transparent; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #1a1b1e; border-radius: 10px; }
     </style>
 </head>
-<body class="flex items-center justify-center p-0 md:p-6 bg-[radial-gradient(ellipse_at_bottom_right,_var(--tw-gradient-stops))] from-indigo-900/20 via-black to-black">
+<body class="flex">
 
-    <div class="neo-glass w-full h-full max-w-7xl flex flex-col md:flex-row overflow-hidden rounded-none md:rounded-[40px]">
+    <nav class="bg-guilds w-[72px] flex flex-col items-center py-3 gap-2 border-r border-black/20">
+        <div class="guild-icon active w-12 h-12 bg-[#313338] flex items-center justify-center cursor-pointer text-[#5865f2] mb-2">
+            <i data-lucide="message-square"></i>
+        </div>
+        <div class="w-8 h-[2px] bg-[#35363c] mb-2"></div>
+        <div onclick="playUISound('click')" class="guild-icon w-12 h-12 bg-[#313338] flex items-center justify-center cursor-pointer hover:text-white transition-all">
+            <i data-lucide="plus"></i>
+        </div>
+        <div onclick="playUISound('click')" class="guild-icon w-12 h-12 bg-[#313338] flex items-center justify-center cursor-pointer hover:text-white transition-all">
+            <i data-lucide="compass"></i>
+        </div>
+    </nav>
+
+    <aside class="bg-channels w-60 flex flex-col">
+        <header class="h-12 shadow-sm flex items-center px-4 font-bold text-white border-b border-black/10">
+            OmniHub Project
+        </header>
         
-        <aside class="w-full md:w-24 border-b md:border-b-0 md:border-r border-white/5 flex md:flex-col items-center py-4 md:py-10 gap-6 px-4">
-            <div class="w-12 h-12 bg-indigo-600 rounded-2xl flex items-center justify-center accent-glow mb-0 md:mb-6">
-                <i data-lucide="component" class="text-white w-7 h-7"></i>
-            </div>
-            
-            <nav class="flex flex-row md:flex-col gap-4 flex-1 justify-center">
-                <button onclick="switchMode('chat')" id="btn-chat" class="p-4 rounded-2xl bg-indigo-600 text-white transition-all shadow-lg">
-                    <i data-lucide="message-square"></i>
-                </button>
-                <button onclick="switchMode('tasks')" id="btn-tasks" class="p-4 rounded-2xl text-white/40 hover:text-white transition-all">
-                    <i data-lucide="check-square"></i>
-                </button>
-                <button onclick="openExternal()" class="p-4 rounded-2xl text-white/40 hover:text-pink-500 transition-all">
-                    <i data-lucide="share-2"></i>
-                </button>
-            </nav>
-
-            <button class="p-4 rounded-2xl text-white/20 hover:text-white mt-auto hidden md:block">
-                <i data-lucide="settings"></i>
-            </button>
-        </aside>
-
-        <main class="flex-1 flex flex-col min-w-0">
-            <header class="h-20 px-8 flex items-center justify-between border-b border-white/5">
-                <div>
-                    <h1 id="view-title" class="text-2xl font-bold tracking-tighter">AURA_SYNC // CHAT</h1>
-                    <div class="flex items-center gap-2">
-                        <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
-                        <span class="text-[10px] uppercase tracking-widest text-white/30">System Active</span>
+        <div class="flex-1 overflow-y-auto py-4 px-2 space-y-4">
+            <div>
+                <div class="text-[12px] font-bold uppercase text-[#949ba4] px-2 mb-1 flex justify-between items-center">
+                    <span>Текстовые каналы</span>
+                    <i data-lucide="plus" class="w-3 h-3 cursor-pointer"></i>
+                </div>
+                <div class="space-y-0.5">
+                    <div onclick="switchChannel('general')" class="channel-link flex items-center gap-2 p-2 rounded-md cursor-pointer text-[#949ba4] bg-[#3f4147] text-white">
+                        <i data-lucide="hash" class="w-4 h-4"></i> general
+                    </div>
+                    <div onclick="switchChannel('dev')" class="channel-link flex items-center gap-2 p-2 rounded-md cursor-pointer text-[#949ba4]">
+                        <i data-lucide="hash" class="w-4 h-4"></i> development
                     </div>
                 </div>
-            </header>
+            </div>
+        </div>
 
-            <div class="flex-1 flex overflow-hidden">
-                <div id="chat-view" class="flex-1 flex flex-col bg-black/20">
-                    <div id="chat-box" class="flex-1 overflow-y-auto p-6 space-y-4 custom-scroll">
-                        </div>
-                    
-                    <div class="p-6 bg-white/[0.02]">
-                        <div class="flex gap-4 bg-white/5 p-2 rounded-3xl border border-white/10 focus-within:border-indigo-500/50 transition-all">
-                            <input id="chat-input" type="text" placeholder="Введите команду или сообщение..." class="flex-1 bg-transparent border-none outline-none px-4 text-sm">
-                            <button onclick="sendMsg()" class="w-12 h-12 bg-indigo-600 rounded-2xl flex items-center justify-center hover:scale-105 active:scale-95 transition-all">
-                                <i data-lucide="send" class="w-5 h-5 text-white"></i>
-                            </button>
-                        </div>
-                    </div>
+        <div class="bg-[#232428] p-2 flex items-center gap-2">
+            <div class="relative">
+                <div class="w-8 h-8 bg-indigo-500 rounded-full"></div>
+                <div class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-[#232428] rounded-full"></div>
+            </div>
+            <div class="flex-1 overflow-hidden">
+                <p class="text-sm font-bold text-white truncate">User_2026</p>
+                <p class="text-[11px] text-[#949ba4]">#0001</p>
+            </div>
+            <div class="flex text-[#b5bac1] gap-1">
+                <i data-lucide="mic" class="w-4 h-4 cursor-pointer hover:text-white"></i>
+                <i data-lucide="settings" class="w-4 h-4 cursor-pointer hover:text-white"></i>
+            </div>
+        </div>
+    </aside>
+
+    <main class="bg-chat flex-1 flex flex-col">
+        <header class="h-12 flex items-center px-4 border-b border-black/10 shadow-sm gap-2">
+            <i data-lucide="hash" class="text-[#80848e] w-5 h-5"></i>
+            <span class="font-bold text-white" id="channel-name">general</span>
+        </header>
+
+        <div id="chat-messages" class="flex-1 overflow-y-auto p-4 space-y-6 custom-scroll">
+            </div>
+
+        <div class="px-4 pb-6">
+            <div class="bg-[#383a40] rounded-lg p-2 flex items-center gap-3">
+                <div class="p-2 bg-[#b5bac1] hover:bg-white rounded-full cursor-pointer text-[#313338] transition">
+                    <i data-lucide="plus" class="w-4 h-4"></i>
                 </div>
-
-                <div id="tasks-view" class="hidden flex-1 p-8 overflow-y-auto custom-scroll">
-                    <h3 class="text-xl font-bold mb-6">Текущие протоколы</h3>
-                    <div id="tasks-list" class="grid gap-4">
-                        </div>
+                <input id="chat-input" type="text" placeholder="Написать в #general" class="bg-transparent border-none outline-none flex-1 text-[#dbdee1] py-2">
+                <div class="flex gap-3 px-2 text-[#b5bac1]">
+                    <i data-lucide="gift" class="cursor-pointer hover:text-white"></i>
+                    <i data-lucide="sticky-note" class="cursor-pointer hover:text-white"></i>
+                    <i data-lucide="smile" class="cursor-pointer hover:text-white"></i>
                 </div>
             </div>
-        </main>
+        </div>
+    </main>
 
-        <aside class="w-full md:w-80 border-t md:border-t-0 md:border-l border-white/5 bg-black/40 p-6 hidden lg:block">
-            <h4 class="text-xs font-bold text-white/30 uppercase tracking-[0.2em] mb-6">Quick Link Hub</h4>
-            <div class="space-y-3">
-                <a href="https://web.whatsapp.com" target="_blank" class="flex items-center justify-between p-4 bg-white/5 rounded-2xl hover:bg-green-500/10 transition-group group">
-                    <div class="flex items-center gap-3">
-                        <i data-lucide="message-circle" class="text-green-500"></i>
-                        <span class="text-sm font-medium">WhatsApp</span>
-                    </div>
-                    <i data-lucide="arrow-up-right" class="w-4 h-4 opacity-0 group-hover:opacity-100 transition-all"></i>
-                </a>
-                <a href="https://instagram.com" target="_blank" class="flex items-center justify-between p-4 bg-white/5 rounded-2xl hover:bg-pink-500/10 transition-group group">
-                    <div class="flex items-center gap-3">
-                        <i data-lucide="instagram" class="text-pink-500"></i>
-                        <span class="text-sm font-medium">Instagram</span>
-                    </div>
-                    <i data-lucide="arrow-up-right" class="w-4 h-4 opacity-0 group-hover:opacity-100 transition-all"></i>
-                </a>
+    <aside class="bg-members w-60 hidden lg:flex flex-col p-4">
+        <h3 class="text-[12px] font-bold uppercase text-[#949ba4] mb-4">В сети — 1</h3>
+        <div class="flex items-center gap-3 p-2 rounded-md hover:bg-[#3f4147] cursor-pointer group">
+            <div class="relative">
+                <div class="w-8 h-8 bg-indigo-500 rounded-full"></div>
+                <div class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-[#2b2d31] rounded-full"></div>
             </div>
-        </aside>
-    </div>
+            <span class="text-[#949ba4] group-hover:text-white font-medium">User_2026</span>
+        </div>
+    </aside>
 
     <script>
         lucide.createIcons();
 
-        // --- ЗВУКОВОЙ ДВИЖОК ---
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        function playSfx(freq, type, duration = 0.1) {
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            osc.type = type;
-            osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-            gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
-            osc.connect(gain);
-            gain.connect(audioCtx.destination);
-            osc.start();
-            osc.stop(audioCtx.currentTime + duration);
+        // Адекватные звуки (стандартные UI звуки)
+        const sounds = {
+            click: new Audio('https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3'), // Мягкий щелчок
+            message: new Audio('https://assets.mixkit.co/active_storage/sfx/2357/2357-preview.mp3'), // Звук сообщения
+            send: new Audio('https://assets.mixkit.co/active_storage/sfx/2354/2354-preview.mp3') // Вуш отправки
+        };
+
+        // Настройка громкости
+        Object.values(sounds).forEach(s => s.volume = 0.2);
+
+        function playUISound(name) {
+            sounds[name].currentTime = 0;
+            sounds[name].play().catch(e => console.log("Sound muted until interaction"));
         }
 
-        // --- ЛОГИКА ЧАТА ---
-        let chatHistory = JSON.parse(localStorage.getItem('aura_msgs')) || [
-            { role: 'ai', text: 'Система Aura Sync запущена. Ожидаю указаний.' }
-        ];
+        let currentChannel = 'general';
+        const chatData = {
+            general: [{ user: 'System', text: 'Добро пожаловать в общий чат OmniCord!', time: '12:00' }],
+            dev: [{ user: 'System', text: 'Здесь обсуждаем разработку приложения.', time: '12:01' }]
+        };
 
-        function renderChat() {
-            const box = document.getElementById('chat-box');
-            box.innerHTML = chatHistory.map(m => `
-                <div class="flex ${m.role === 'user' ? 'justify-end' : 'justify-start'} message-anim">
-                    <div class="max-w-[80%] p-4 rounded-3xl ${m.role === 'user' ? 'bg-indigo-600 text-white rounded-tr-none' : 'bg-white/5 text-white/80 rounded-tl-none border border-white/5'}">
-                        <p class="text-sm">${m.text}</p>
+        function switchChannel(name) {
+            playUISound('click');
+            currentChannel = name;
+            document.getElementById('channel-name').innerText = name;
+            document.getElementById('chat-input').placeholder = `Написать в #${name}`;
+            renderMessages();
+        }
+
+        function renderMessages() {
+            const box = document.getElementById('chat-messages');
+            box.innerHTML = chatData[currentChannel].map(m => `
+                <div class="flex gap-4 group">
+                    <div class="w-10 h-10 bg-indigo-600 rounded-full flex-shrink-0"></div>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span class="font-bold text-white hover:underline cursor-pointer">${m.user}</span>
+                            <span class="text-[10px] text-[#949ba4]">${m.time}</span>
+                        </div>
+                        <p class="text-[#dbdee1] leading-relaxed">${m.text}</p>
                     </div>
                 </div>
             `).join('');
             box.scrollTop = box.scrollHeight;
         }
 
-        function sendMsg() {
+        function sendMessage() {
             const input = document.getElementById('chat-input');
             if(!input.value) return;
 
-            playSfx(600, 'sine');
-            chatHistory.push({ role: 'user', text: input.value });
-            localStorage.setItem('aura_msgs', JSON.stringify(chatHistory));
+            playUISound('send');
+            chatData[currentChannel].push({
+                user: 'User_2026',
+                text: input.value,
+                time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
+            });
             
-            const userText = input.value.toLowerCase();
+            const text = input.value;
             input.value = '';
-            renderChat();
+            renderMessages();
 
-            // Маленький "ИИ" ответ
+            // Имитация ответа
             setTimeout(() => {
-                playSfx(400, 'triangle', 0.2);
-                let reply = "Запрос обработан. Данные сохранены в локальном узле.";
-                if(userText.includes("привет")) reply = "Приветствую! Чем сегодня займемся?";
-                
-                chatHistory.push({ role: 'ai', text: reply });
-                localStorage.setItem('aura_msgs', JSON.stringify(chatHistory));
-                renderChat();
-            }, 800);
+                playUISound('message');
+                chatData[currentChannel].push({
+                    user: 'Bot',
+                    text: `Принял твой запрос: "${text}". Всё работает стабильно.`,
+                    time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
+                });
+                renderMessages();
+            }, 1000);
         }
 
-        // --- ПЕРЕКЛЮЧЕНИЕ РЕЖИМОВ ---
-        function switchMode(mode) {
-            playSfx(200, 'square', 0.05);
-            const isChat = mode === 'chat';
-            document.getElementById('chat-view').classList.toggle('hidden', !isChat);
-            document.getElementById('tasks-view').classList.toggle('hidden', isChat);
-            document.getElementById('view-title').innerText = isChat ? 'AURA_SYNC // CHAT' : 'AURA_SYNC // TASKS';
-            
-            document.getElementById('btn-chat').className = isChat ? 'p-4 rounded-2xl bg-indigo-600 text-white shadow-lg' : 'p-4 rounded-2xl text-white/40';
-            document.getElementById('btn-tasks').className = !isChat ? 'p-4 rounded-2xl bg-indigo-600 text-white shadow-lg' : 'p-4 rounded-2xl text-white/40';
-            
-            if(!isChat) renderTasks();
-        }
-
-        // --- ЗАДАЧИ ---
-        let tasks = JSON.parse(localStorage.getItem('aura_tasks')) || ["Создать крутой UI", "Настроить звуки"];
-        function renderTasks() {
-            const list = document.getElementById('tasks-list');
-            list.innerHTML = tasks.map((t, i) => `
-                <div class="p-4 bg-white/5 border border-white/5 rounded-2xl flex items-center justify-between group hover:border-indigo-500/30 transition-all">
-                    <span class="text-sm">${t}</span>
-                    <button onclick="deleteTask(${i})" class="text-white/20 hover:text-red-500"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
-                </div>
-            `).join('') + `
-                <button onclick="addTask()" class="p-4 border border-dashed border-white/10 rounded-2xl text-white/30 hover:text-white transition-all text-sm">+ Добавить новый протокол</button>
-            `;
-            lucide.createIcons();
-        }
-
-        function addTask() {
-            const t = prompt("Название задачи:");
-            if(t) {
-                tasks.push(t);
-                localStorage.setItem('aura_tasks', JSON.stringify(tasks));
-                renderTasks();
-            }
-        }
-
-        function deleteTask(i) {
-            tasks.splice(i, 1);
-            localStorage.setItem('aura_tasks', JSON.stringify(tasks));
-            renderTasks();
-        }
-
-        // Слушатель Enter
         document.getElementById('chat-input').addEventListener('keypress', (e) => {
-            if(e.key === 'Enter') sendMsg();
+            if(e.key === 'Enter') sendMessage();
         });
 
-        window.onload = renderChat;
+        window.onload = renderMessages;
     </script>
 </body>
 </html>
