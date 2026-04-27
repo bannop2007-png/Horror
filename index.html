@@ -3,87 +3,103 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Elysium Imperial OS</title>
+    <title>Elysium Imperial | Prime OS</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.5.2/peerjs.min.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600&display=swap');
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #050505; color: #eee; height: 100vh; overflow: hidden; }
-        .glass { background: rgba(20, 20, 20, 0.6); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.05); }
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@200;400;600&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #000; color: #fff; height: 100vh; overflow: hidden; }
+        .glass { background: rgba(15, 15, 15, 0.7); backdrop-filter: blur(30px); border: 1px solid rgba(255,255,255,0.08); }
         .gold { color: #d4af37; }
-        .btn-gold { background: #d4af37; color: #000; font-weight: 600; transition: 0.3s; }
-        .btn-gold:hover { background: #f4e07d; transform: scale(1.02); }
-        .msg-bubble { max-width: 80%; padding: 12px 16px; border-radius: 18px; font-size: 14px; animation: slideUp 0.3s ease; }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .gold-border { border-color: rgba(212, 175, 55, 0.3); }
+        
+        /* Stories Style */
+        .story-card { min-width: 120px; height: 160px; border-radius: 20px; background: linear-gradient(to bottom, rgba(212,175,55,0.2), rgba(0,0,0,0.8)); border: 1px solid rgba(255,255,255,0.1); flex-shrink: 0; cursor: pointer; transition: 0.3s; position: relative; overflow: hidden; }
+        .story-card:hover { transform: translateY(-5px); border-color: #d4af37; }
+        
+        .msg-bubble { max-width: 75%; padding: 12px 18px; border-radius: 22px; font-size: 14px; margin-bottom: 8px; }
+        .custom-scroll::-webkit-scrollbar { width: 4px; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: rgba(212,175,55,0.2); border-radius: 10px; }
     </style>
 </head>
 <body class="flex p-4 gap-4 h-screen">
 
-    <nav class="w-20 glass rounded-[30px] flex flex-col items-center py-8 gap-8 shadow-2xl">
-        <div class="gold text-2xl font-bold">E</div>
-        <button onclick="showTab('chat')" class="p-3 hover:text-gold transition-all"><i data-lucide="message-circle"></i></button>
-        <button onclick="showTab('friends')" class="p-3 hover:text-gold transition-all"><i data-lucide="user-plus"></i></button>
-        <div class="mt-auto flex flex-col gap-4">
-            <div id="status-dot" class="w-3 h-3 bg-red-500 rounded-full mx-auto shadow-[0_0_10px_red]"></div>
+    <nav class="w-20 glass rounded-[35px] flex flex-col items-center py-10 gap-8 shadow-2xl">
+        <div class="gold text-2xl font-bold italic">Σ</div>
+        <button onclick="showTab('chat')" class="p-3 text-white/40 hover:text-gold transition-all"><i data-lucide="message-square"></i></button>
+        <button onclick="showTab('updates')" class="p-3 text-white/40 hover:text-gold transition-all"><i data-lucide="layout-grid"></i></button>
+        <button onclick="showTab('profile')" class="p-3 text-white/40 hover:text-gold transition-all"><i data-lucide="user-circle"></i></button>
+        <div class="mt-auto">
+            <div id="status-led" class="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
         </div>
     </nav>
 
-    <div class="flex-1 flex flex-col gap-4 min-w-0">
-        <header class="h-20 glass rounded-[25px] px-8 flex items-center justify-between">
-            <div>
-                <p class="text-[10px] uppercase tracking-widest text-white/30">Personal Encryption ID</p>
-                <p id="my-id" class="text-sm font-mono gold cursor-pointer" onclick="copyId()">Connecting system...</p>
+    <div class="flex-1 flex flex-col gap-4">
+        
+        <div id="stories-container" class="h-44 flex gap-4 overflow-x-auto custom-scroll pb-2">
+            <div class="story-card flex flex-col justify-end p-4 border-dashed border-gold/50" onclick="addStory()">
+                <i data-lucide="plus" class="w-6 h-6 text-gold mb-2"></i>
+                <p class="text-[10px] font-bold uppercase">Add Story</p>
             </div>
-            <div id="call-ui" class="hidden flex items-center gap-4 bg-red-500/10 border border-red-500/20 px-4 py-2 rounded-full text-red-500 text-xs">
-                <span class="animate-pulse">● LIVE CALL</span>
-                <button onclick="endCall()" class="ml-2 font-bold underline">DISCONNECT</button>
-            </div>
-        </header>
+        </div>
 
-        <main class="flex-1 glass rounded-[35px] overflow-hidden flex relative">
+        <main class="flex-1 glass rounded-[40px] overflow-hidden flex relative">
             
-            <section id="tab-chat" class="flex-1 flex flex-col p-6">
-                <div id="chat-box" class="flex-1 overflow-y-auto space-y-4 px-2 mb-4 scroll-smooth">
-                    <div class="text-center text-white/20 text-xs py-10 italic">Начните диалог, добавив друга по ID</div>
-                </div>
-                <div class="flex gap-3 bg-white/5 p-2 rounded-2xl border border-white/5 focus-within:border-white/20 transition-all">
-                    <input id="msg-input" type="text" placeholder="Введите сообщение..." class="flex-1 bg-transparent border-none outline-none px-4 text-sm">
-                    <button onclick="sendMsg()" class="btn-gold p-3 rounded-xl"><i data-lucide="send" class="w-5 h-5"></i></button>
+            <section id="tab-chat" class="flex-1 flex flex-col p-8">
+                <header class="flex justify-between items-center mb-6">
+                    <div>
+                        <h2 class="text-xl font-light">Imperial <span class="gold">Channel</span></h2>
+                        <p id="peer-status" class="text-[10px] text-white/20 uppercase tracking-widest">No active connection</p>
+                    </div>
+                    <div class="flex gap-3">
+                        <button onclick="startVoiceCall()" class="p-3 glass rounded-full text-green-500 hover:bg-green-500 hover:text-white transition-all"><i data-lucide="phone"></i></button>
+                    </div>
+                </header>
+                
+                <div id="chat-box" class="flex-1 overflow-y-auto space-y-4 pr-4 custom-scroll"></div>
+                
+                <div class="mt-6 flex gap-3 bg-white/5 p-2 rounded-[25px] border border-white/5 focus-within:gold-border transition-all">
+                    <input id="msg-input" type="text" placeholder="Зашифрованное сообщение..." class="flex-1 bg-transparent border-none outline-none px-6 text-sm">
+                    <button onclick="sendMsg()" class="bg-[#d4af37] text-black p-4 rounded-[20px] hover:scale-105 transition"><i data-lucide="zap" class="w-5 h-5"></i></button>
                 </div>
             </section>
 
-            <section id="tab-friends" class="hidden flex-1 p-10">
-                <h2 class="text-2xl font-light mb-8">Network <span class="gold">Connect</span></h2>
-                <div class="max-w-md space-y-6">
-                    <div class="space-y-2">
-                        <label class="text-xs text-white/30">ID Узла Получателя</label>
-                        <div class="flex gap-2">
-                            <input id="peer-id-input" type="text" class="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-gold/50">
-                            <button onclick="connectToPeer()" class="btn-gold px-6 py-3 rounded-xl">Связаться</button>
+            <section id="tab-profile" class="hidden flex-1 p-12">
+                <h2 class="text-3xl font-light mb-10">System <span class="gold">Profile</span></h2>
+                <div class="max-w-md space-y-8">
+                    <div class="flex items-center gap-6 mb-10">
+                        <div class="w-24 h-24 rounded-full bg-gradient-to-tr from-gold to-transparent p-1">
+                            <div id="profile-img" class="w-full h-full bg-black rounded-full flex items-center justify-center">
+                                <i data-lucide="user" class="w-10 h-10 text-white/20"></i>
+                            </div>
                         </div>
+                        <button onclick="changeAvatar()" class="text-xs text-gold underline">Изменить фото</button>
                     </div>
-                    <div id="active-peer" class="hidden p-4 rounded-2xl bg-white/5 border border-white/10 flex justify-between items-center">
+                    
+                    <div class="space-y-4">
                         <div>
-                            <p class="text-xs text-white/30">Активное соединение</p>
-                            <p id="connected-id" class="text-sm font-mono gold"></p>
+                            <label class="text-[10px] uppercase text-white/30 tracking-widest">Отображаемое имя</label>
+                            <input id="prof-name" type="text" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 mt-1 outline-none focus:border-gold">
                         </div>
-                        <button onclick="startCall()" class="p-3 bg-green-500/20 text-green-500 rounded-full hover:bg-green-500 hover:text-white transition-all">
-                            <i data-lucide="phone"></i>
-                        </button>
+                        <div>
+                            <label class="text-[10px] uppercase text-white/30 tracking-widest">Персональный ID (Буквы и цифры)</label>
+                            <input id="prof-id" type="text" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 mt-1 outline-none focus:border-gold" placeholder="например: king777">
+                        </div>
                     </div>
+                    <button onclick="saveProfile()" class="w-full bg-white text-black font-bold py-4 rounded-2xl hover:bg-gold transition">Сохранить изменения</button>
                 </div>
             </section>
 
-            <div class="absolute top-4 right-4 w-64 glass p-4 rounded-2xl sui-aura border-indigo-500/20">
-                <div class="flex items-center gap-2 mb-2">
-                    <i data-lucide="sparkles" class="w-4 h-4 text-indigo-400"></i>
-                    <span class="text-[10px] font-bold uppercase text-indigo-400">SUI AI Assistant</span>
+            <div id="call-screen" class="hidden absolute inset-0 bg-black/90 backdrop-blur-xl flex flex-col items-center justify-center z-50">
+                <div class="w-32 h-32 rounded-full border-2 border-gold animate-pulse mb-8 flex items-center justify-center">
+                    <i data-lucide="mic" class="w-12 h-12 text-gold"></i>
                 </div>
-                <p id="sui-text" class="text-[11px] text-white/50 leading-relaxed">
-                    Система Elysium Imperial инициализирована. Ожидаю входящие пакеты данных.
-                </p>
+                <h3 class="text-2xl font-light mb-2">Голосовой канал</h3>
+                <p id="call-timer" class="text-gold text-xs mb-12 uppercase tracking-widest">00:00</p>
+                <button onclick="endCall()" class="w-20 h-20 bg-red-600 rounded-full flex items-center justify-center hover:scale-110 transition"><i data-lucide="phone-off"></i></button>
             </div>
+
         </main>
     </div>
 
@@ -92,122 +108,155 @@
     <script>
         lucide.createIcons();
         
-        let peer = new Peer();
-        let conn = null;
-        let currentCall = null;
-        let myStream = null;
+        let userConfig = JSON.parse(localStorage.getItem('elysium_user')) || {
+            name: 'Elite User',
+            id: 'elysium_' + Math.random().toString(36).substr(2, 5),
+            stories: [
+                { title: 'Welcome', desc: 'Система Elysium v4 запущена.' },
+                { title: 'Update', desc: 'Добавлены звонки и профили.' }
+            ]
+        };
 
-        // Инициализация Peer
-        peer.on('open', (id) => {
-            document.getElementById('my-id').innerText = id;
-            document.getElementById('status-dot').style.backgroundColor = '#22c55e';
-            document.getElementById('status-dot').style.boxShadow = '0 0 10px #22c55e';
-        });
+        let peer, conn, currentCall, myStream;
 
-        // Входящее текстовое соединение
-        peer.on('connection', (c) => {
-            conn = c;
-            initConn();
-        });
+        // Инициализация системы
+        function initSystem() {
+            document.getElementById('prof-name').value = userConfig.name;
+            document.getElementById('prof-id').value = userConfig.id;
+            
+            // Запуск Peer с кастомным ID
+            peer = new Peer(userConfig.id);
+            
+            peer.on('open', (id) => {
+                document.getElementById('status-led').style.backgroundColor = '#22c55e';
+                console.log("System Online: " + id);
+                renderStories();
+            });
 
-        // Входящий звонок
-        peer.on('call', (call) => {
-            if(confirm("Входящий голосовой вызов. Принять?")) {
-                navigator.mediaDevices.getUserMedia({audio: true}).then(stream => {
-                    myStream = stream;
-                    call.answer(stream);
-                    handleCall(call);
-                });
+            peer.on('connection', (c) => {
+                conn = c;
+                setupChat();
+            });
+
+            peer.on('call', (call) => {
+                if(confirm("Входящий вызов. Принять?")) {
+                    navigator.mediaDevices.getUserMedia({audio: true}).then(stream => {
+                        myStream = stream;
+                        call.answer(stream);
+                        showCallScreen(call);
+                    });
+                }
+            });
+        }
+
+        function saveProfile() {
+            const newId = document.getElementById('prof-id').value.trim();
+            const newName = document.getElementById('prof-name').value.trim();
+            
+            if(newId !== userConfig.id) {
+                alert("ID изменен. Система будет перезагружена для обновления узла.");
             }
-        });
-
-        function connectToPeer() {
-            const peerId = document.getElementById('peer-id-input').value;
-            if(!peerId) return;
-            conn = peer.connect(peerId);
-            initConn();
+            
+            userConfig.name = newName;
+            userConfig.id = newId;
+            localStorage.setItem('elysium_user', JSON.stringify(userConfig));
+            location.reload();
         }
 
-        function initConn() {
-            conn.on('open', () => {
-                document.getElementById('active-peer').classList.remove('hidden');
-                document.getElementById('connected-id').innerText = conn.peer;
-                showTab('chat');
-                addMsg('System', 'Зашифрованный канал установлен', 'center');
+        function renderStories() {
+            const container = document.getElementById('stories-container');
+            const staticContent = container.firstElementChild.outerHTML;
+            container.innerHTML = staticContent + userConfig.stories.map(s => `
+                <div class="story-card flex flex-col justify-end p-4">
+                    <p class="text-[10px] font-bold text-gold uppercase mb-1">${s.title}</p>
+                    <p class="text-[9px] text-white/60 leading-tight">${s.desc}</p>
+                </div>
+            `).join('');
+            lucide.createIcons();
+        }
+
+        function addStory() {
+            const title = prompt("Заголовок обновления:");
+            const desc = prompt("Что нового?");
+            if(title && desc) {
+                userConfig.stories.unshift({title, desc});
+                localStorage.setItem('elysium_user', JSON.stringify(userConfig));
+                renderStories();
+            }
+        }
+
+        // --- ЛОГИКА СВЯЗИ ---
+        function showTab(tab) {
+            ['chat', 'profile', 'updates'].forEach(t => {
+                const el = document.getElementById('tab-' + t);
+                if(el) el.classList.toggle('hidden', t !== tab);
             });
-            conn.on('data', (data) => {
-                addMsg('Friend', data, 'left');
-                playSfx('recv');
-            });
         }
 
-        function sendMsg() {
-            const input = document.getElementById('msg-input');
-            if(!input.value || !conn) return;
-            conn.send(input.value);
-            addMsg('You', input.value, 'right');
-            input.value = '';
-            playSfx('send');
-        }
-
-        function startCall() {
-            const peerId = conn.peer;
+        function startVoiceCall() {
+            const targetId = prompt("Введите ID друга для звонка:");
+            if(!targetId) return;
+            
             navigator.mediaDevices.getUserMedia({audio: true}).then(stream => {
                 myStream = stream;
-                const call = peer.call(peerId, stream);
-                handleCall(call);
-            }).catch(err => alert("Доступ к микрофону запрещен или недоступен по HTTP. Используйте HTTPS или Localhost."));
+                const call = peer.call(targetId, stream);
+                showCallScreen(call);
+            }).catch(() => alert("Микрофон недоступен. Проверьте HTTPS или настройки браузера."));
         }
 
-        function handleCall(call) {
+        function showCallScreen(call) {
             currentCall = call;
-            document.getElementById('call-ui').classList.remove('hidden');
+            document.getElementById('call-screen').classList.remove('hidden');
             call.on('stream', (remoteStream) => {
                 document.getElementById('remote-audio').srcObject = remoteStream;
             });
-            call.on('close', endCall);
         }
 
         function endCall() {
             if(currentCall) currentCall.close();
             if(myStream) myStream.getTracks().forEach(t => t.stop());
-            document.getElementById('call-ui').classList.add('hidden');
+            document.getElementById('call-screen').classList.add('hidden');
         }
 
-        // Интерфейсные функции
-        function showTab(tab) {
-            document.getElementById('tab-chat').classList.toggle('hidden', tab !== 'chat');
-            document.getElementById('tab-friends').classList.toggle('hidden', tab !== 'friends');
+        function sendMsg() {
+            const input = document.getElementById('msg-input');
+            const targetId = prompt("Введите ID друга для отправки (если еще не соединены):", conn ? conn.peer : "");
+            
+            if(!conn || conn.peer !== targetId) {
+                conn = peer.connect(targetId);
+                setupChat();
+            }
+
+            setTimeout(() => {
+                conn.send({ user: userConfig.name, text: input.value });
+                addBubble(userConfig.name, input.value, 'right');
+                input.value = '';
+            }, 500);
         }
 
-        function addMsg(user, text, side) {
+        function setupChat() {
+            conn.on('open', () => {
+                document.getElementById('peer-status').innerText = "Connected to: " + conn.peer;
+                addBubble('System', 'Канал связи открыт', 'center');
+            });
+            conn.on('data', (data) => {
+                addBubble(data.user, data.text, 'left');
+            });
+        }
+
+        function addBubble(name, text, side) {
             const box = document.getElementById('chat-box');
             const div = document.createElement('div');
             div.className = `flex ${side === 'right' ? 'justify-end' : side === 'left' ? 'justify-start' : 'justify-center'}`;
             
-            let style = side === 'right' ? 'bg-indigo-600 text-white rounded-tr-none' : 'bg-white/5 border border-white/10 text-white rounded-tl-none';
-            if(side === 'center') style = 'text-white/20 text-[10px] uppercase tracking-widest';
-
-            div.innerHTML = `<div class="msg-bubble ${style}">${side !== 'center' ? `<p class="text-[10px] opacity-40 mb-1">${user}</p>` : ''}${text}</div>`;
+            const style = side === 'right' ? 'bg-indigo-600 text-white' : side === 'left' ? 'bg-white/10 text-white' : 'text-white/20 text-[10px]';
+            div.innerHTML = `<div class="msg-bubble ${style}">${side !== 'center' ? `<p class="text-[9px] opacity-50 mb-1">${name}</p>` : ''}${text}</div>`;
+            
             box.appendChild(div);
             box.scrollTop = box.scrollHeight;
         }
 
-        function copyId() {
-            const id = document.getElementById('my-id').innerText;
-            navigator.clipboard.writeText(id);
-            document.getElementById('sui-text').innerText = "Ваш ID скопирован в буфер обмена. Передайте его собеседнику.";
-        }
-
-        function playSfx(type) {
-            const audio = new Audio(type === 'send' ? 
-                'https://assets.mixkit.co/active_storage/sfx/2354/2354-preview.mp3' : 
-                'https://assets.mixkit.co/active_storage/sfx/2357/2357-preview.mp3');
-            audio.volume = 0.1;
-            audio.play();
-        }
-
-        document.getElementById('msg-input').addEventListener('keypress', e => { if(e.key === 'Enter') sendMsg(); });
+        window.onload = initSystem;
     </script>
 </body>
 </html>
