@@ -1,179 +1,167 @@
 <!DOCTYPE html>
-
 <html lang="ru">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Mini Messenger</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OmniHub | Unified Messenger</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            height: 100vh;
+            overflow: hidden;
+        }
 
-<style>
-body {
-    margin:0;
-    font-family: Arial;
-    background:#0f0f1a;
-    color:white;
-}
+        .glass {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 24px;
+        }
 
-header {
-    padding:15px;
-    text-align:center;
-    background:#1c1c2e;
-    font-size:20px;
-}
+        .sidebar-item {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
 
-nav {
-    display:flex;
-    justify-content:space-around;
-    background:#222;
-}
+        .sidebar-item:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-2px);
+        }
 
-nav button {
-    flex:1;
-    padding:10px;
-    border:none;
-    background:none;
-    color:white;
-    font-size:16px;
-}
+        .sidebar-item.active {
+            background: white;
+            color: #4f46e5;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
 
-.active {
-    background:#00c9a7;
-}
+        /* Анимация появления контента */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.98); }
+            to { opacity: 1; transform: scale(1); }
+        }
 
-.screen {
-    display:none;
-    padding:10px;
-}
-
-.show {
-    display:block;
-}
-
-/* чат */
-.message {
-    background:#2a2a40;
-    margin:5px 0;
-    padding:10px;
-    border-radius:10px;
-}
-
-input {
-    width:70%;
-    padding:10px;
-    border:none;
-    border-radius:10px;
-}
-
-.send {
-    padding:10px;
-    border:none;
-    border-radius:10px;
-    background:#00c9a7;
-}
-
-/* посты */
-.post {
-    background:#2a2a40;
-    padding:10px;
-    margin:10px 0;
-    border-radius:10px;
-}
-</style>
-
+        .content-area {
+            animation: fadeIn 0.4s ease-out;
+        }
+    </style>
 </head>
+<body class="flex items-center justify-center p-4 md:p-8">
 
-<body>
+    <div class="glass w-full h-full max-w-6xl flex overflow-hidden shadow-2xl">
+        
+        <aside class="w-20 md:w-24 border-r border-white/10 flex flex-col items-center py-8 gap-6">
+            <div class="mb-4 text-white">
+                <i data-lucide="layers" class="w-8 h-8"></i>
+            </div>
 
-<header>📱 Chat + Feed</header>
+            <button onclick="switchTab('whatsapp')" id="btn-whatsapp" class="sidebar-item active p-4 rounded-2xl text-white/70 hover:text-white">
+                <i data-lucide="message-circle" class="w-6 h-6"></i>
+            </button>
 
-<nav>
-    <button onclick="switchTab('chat')" id="chatBtn" class="active">💬 Чат</button>
-    <button onclick="switchTab('feed')" id="feedBtn">📸 Лента</button>
-</nav>
+            <button onclick="switchTab('instagram')" id="btn-instagram" class="sidebar-item p-4 rounded-2xl text-white/70 hover:text-white">
+                <i data-lucide="instagram" class="w-6 h-6"></i>
+            </button>
 
-<div id="chat" class="screen show">
-    <div id="messages"></div>
+            <button onclick="switchTab('settings')" id="btn-settings" class="sidebar-item p-4 rounded-2xl text-white/70 hover:text-white mt-auto">
+                <i data-lucide="settings" class="w-6 h-6"></i>
+            </button>
+        </aside>
 
-```
-<input id="msgInput" placeholder="Сообщение...">
-<button class="send" onclick="sendMsg()">Отправить</button>
-```
+        <main class="flex-1 flex flex-col">
+            <header class="h-16 flex items-center justify-between px-8 border-b border-white/10 bg-white/5">
+                <h2 id="current-title" class="text-white font-semibold text-lg tracking-wide uppercase">WhatsApp</h2>
+                <div class="flex items-center gap-4 text-white/60">
+                    <i data-lucide="bell" class="w-5 h-5 cursor-pointer hover:text-white"></i>
+                    <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-yellow-400 to-fuchsia-600 border-2 border-white/20"></div>
+                </div>
+            </header>
 
-</div>
+            <section id="content-window" class="flex-1 p-6 content-area">
+                <div class="w-full h-full rounded-2xl bg-black/20 border border-white/5 overflow-hidden relative">
+                    <div id="loader" class="absolute inset-0 flex items-center justify-center flex-col text-white/40">
+                        <div class="animate-spin mb-4">
+                            <i data-lucide="loader-2" class="w-10 h-10"></i>
+                        </div>
+                        <p>Подключение к защищенному каналу...</p>
+                    </div>
 
-<div id="feed" class="screen">
-    <input id="postInput" placeholder="Что нового?">
-    <button class="send" onclick="addPost()">Пост</button>
+                    <iframe id="app-frame" src="https://web.whatsapp.com" class="w-full h-full border-none opacity-0 transition-opacity duration-500"></iframe>
+                </div>
+            </section>
+        </main>
+    </div>
 
-```
-<div id="posts"></div>
-```
+    <script>
+        // Инициализация иконок
+        lucide.createIcons();
 
-</div>
+        // Аудио контекст для "красивых" звуков
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
-<script>
-let messages = JSON.parse(localStorage.getItem("msgs")) || [];
-let posts = JSON.parse(localStorage.getItem("posts")) || [];
+        function playSound(type) {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
 
-function switchTab(tab) {
-    document.getElementById("chat").classList.remove("show");
-    document.getElementById("feed").classList.remove("show");
+            if (type === 'click') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(880, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 0.1);
+                gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.1);
+            }
+        }
 
-    document.getElementById(tab).classList.add("show");
+        // Логика переключения вкладок
+        function switchTab(tab) {
+            playSound('click');
+            
+            // Сброс активных кнопок
+            document.querySelectorAll('.sidebar-item').forEach(btn => btn.classList.remove('active'));
+            
+            const frame = document.getElementById('app-frame');
+            const title = document.getElementById('current-title');
+            const loader = document.getElementById('loader');
+            
+            loader.style.opacity = "1";
+            frame.style.opacity = "0";
 
-    document.getElementById("chatBtn").classList.remove("active");
-    document.getElementById("feedBtn").classList.remove("active");
+            if (tab === 'whatsapp') {
+                document.getElementById('btn-whatsapp').classList.add('active');
+                title.innerText = 'WhatsApp';
+                frame.src = 'https://web.whatsapp.com';
+            } else if (tab === 'instagram') {
+                document.getElementById('btn-instagram').classList.add('active');
+                title.innerText = 'Instagram';
+                frame.src = 'https://www.instagram.com/direct/inbox/';
+            } else if (tab === 'settings') {
+                document.getElementById('btn-settings').classList.add('active');
+                title.innerText = 'Настройки хаба';
+                frame.src = 'about:blank'; // Здесь может быть твоя страница настроек
+            }
 
-    document.getElementById(tab+"Btn").classList.add("active");
-}
+            // Имитация загрузки
+            setTimeout(() => {
+                loader.style.opacity = "0";
+                frame.style.opacity = "1";
+            }, 1000);
+        }
 
-function renderMessages() {
-    const box = document.getElementById("messages");
-    box.innerHTML = "";
-
-    messages.forEach(m => {
-        const div = document.createElement("div");
-        div.className = "message";
-        div.textContent = m;
-        box.appendChild(div);
-    });
-}
-
-function sendMsg() {
-    const input = document.getElementById("msgInput");
-    if(!input.value.trim()) return;
-
-    messages.push(input.value);
-    localStorage.setItem("msgs", JSON.stringify(messages));
-    input.value="";
-    renderMessages();
-}
-
-function renderPosts() {
-    const box = document.getElementById("posts");
-    box.innerHTML = "";
-
-    posts.forEach(p => {
-        const div = document.createElement("div");
-        div.className = "post";
-        div.textContent = p;
-        box.appendChild(div);
-    });
-}
-
-function addPost() {
-    const input = document.getElementById("postInput");
-    if(!input.value.trim()) return;
-
-    posts.push(input.value);
-    localStorage.setItem("posts", JSON.stringify(posts));
-    input.value="";
-    renderPosts();
-}
-
-renderMessages();
-renderPosts();
-</script>
-
+        // Первичная инициализация
+        window.onload = () => {
+            setTimeout(() => {
+                document.getElementById('loader').style.opacity = "0";
+                document.getElementById('app-frame').style.opacity = "1";
+            }, 2000);
+        };
+    </script>
 </body>
 </html>
