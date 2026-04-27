@@ -3,165 +3,219 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OmniHub | Unified Messenger</title>
+    <title>OmniConnect v1.0 | Unified Hub</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700&display=swap');
         
+        :root {
+            --glass: rgba(15, 15, 15, 0.7);
+            --border: rgba(255, 255, 255, 0.1);
+        }
+
         body {
-            font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: radial-gradient(circle at top left, #1e1b4b, #000000);
+            color: white;
             height: 100vh;
             overflow: hidden;
         }
 
-        .glass {
+        .glass-panel {
+            background: var(--glass);
+            backdrop-filter: blur(30px);
+            border: 1px solid var(--border);
+        }
+
+        .chat-bubble {
+            max-width: 80%;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .active-tab {
             background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 24px;
+            border-left: 3px solid #6366f1;
         }
 
-        .sidebar-item {
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .sidebar-item:hover {
-            background: rgba(255, 255, 255, 0.15);
-            transform: translateY(-2px);
-        }
-
-        .sidebar-item.active {
-            background: white;
-            color: #4f46e5;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-        }
-
-        /* Анимация появления контента */
-        @keyframes fadeIn {
-            from { opacity: 0; transform: scale(0.98); }
-            to { opacity: 1; transform: scale(1); }
-        }
-
-        .content-area {
-            animation: fadeIn 0.4s ease-out;
-        }
+        /* Кастомный скроллбар */
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 10px; }
     </style>
 </head>
-<body class="flex items-center justify-center p-4 md:p-8">
+<body class="flex items-center justify-center p-0 md:p-6">
 
-    <div class="glass w-full h-full max-w-6xl flex overflow-hidden shadow-2xl">
+    <div class="glass-panel w-full h-full max-w-7xl flex overflow-hidden rounded-none md:rounded-[32px] shadow-2xl">
         
-        <aside class="w-20 md:w-24 border-r border-white/10 flex flex-col items-center py-8 gap-6">
-            <div class="mb-4 text-white">
-                <i data-lucide="layers" class="w-8 h-8"></i>
+        <aside class="w-20 md:w-64 border-r border-white/5 flex flex-col">
+            <div class="p-6 flex items-center gap-3">
+                <div class="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center">
+                    <i data-lucide="zap" class="text-white w-6 h-6"></i>
+                </div>
+                <span class="hidden md:block font-bold text-xl tracking-tight">OmniHub</span>
             </div>
 
-            <button onclick="switchTab('whatsapp')" id="btn-whatsapp" class="sidebar-item active p-4 rounded-2xl text-white/70 hover:text-white">
-                <i data-lucide="message-circle" class="w-6 h-6"></i>
-            </button>
+            <nav class="flex-1 px-3 space-y-2">
+                <div onclick="setApp('wa')" id="nav-wa" class="active-tab flex items-center gap-4 p-4 rounded-2xl cursor-pointer transition hover:bg-white/5">
+                    <i data-lucide="message-square" class="text-green-400"></i>
+                    <span class="hidden md:block font-medium">WhatsApp</span>
+                </div>
+                <div onclick="setApp('ig')" id="nav-ig" class="flex items-center gap-4 p-4 rounded-2xl cursor-pointer transition hover:bg-white/5">
+                    <i data-lucide="instagram" class="text-pink-500"></i>
+                    <span class="hidden md:block font-medium">Instagram</span>
+                </div>
+            </nav>
 
-            <button onclick="switchTab('instagram')" id="btn-instagram" class="sidebar-item p-4 rounded-2xl text-white/70 hover:text-white">
-                <i data-lucide="instagram" class="w-6 h-6"></i>
-            </button>
-
-            <button onclick="switchTab('settings')" id="btn-settings" class="sidebar-item p-4 rounded-2xl text-white/70 hover:text-white mt-auto">
-                <i data-lucide="settings" class="w-6 h-6"></i>
-            </button>
+            <div class="p-4 border-t border-white/5">
+                <div class="flex items-center gap-3 p-3 bg-white/5 rounded-2xl">
+                    <div class="w-8 h-8 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500"></div>
+                    <div class="hidden md:block overflow-hidden">
+                        <p class="text-xs font-bold truncate">User_2026</p>
+                        <p class="text-[10px] text-white/40">Online</p>
+                    </div>
+                </div>
+            </div>
         </aside>
 
         <main class="flex-1 flex flex-col">
-            <header class="h-16 flex items-center justify-between px-8 border-b border-white/10 bg-white/5">
-                <h2 id="current-title" class="text-white font-semibold text-lg tracking-wide uppercase">WhatsApp</h2>
-                <div class="flex items-center gap-4 text-white/60">
-                    <i data-lucide="bell" class="w-5 h-5 cursor-pointer hover:text-white"></i>
-                    <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-yellow-400 to-fuchsia-600 border-2 border-white/20"></div>
+            <header class="h-20 px-8 flex items-center justify-between border-b border-white/5 bg-black/20">
+                <div>
+                    <h2 id="app-title" class="text-xl font-bold">WhatsApp Messenger</h2>
+                    <p class="text-xs text-white/40">Синхронизировано через защищенный шлюз</p>
+                </div>
+                <div class="flex items-center gap-4">
+                    <button onclick="openExternal()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 rounded-xl text-sm font-semibold transition flex items-center gap-2">
+                        <i data-lucide="external-link" class="w-4 h-4"></i>
+                        <span>Открыть оригинал</span>
+                    </button>
                 </div>
             </header>
 
-            <section id="content-window" class="flex-1 p-6 content-area">
-                <div class="w-full h-full rounded-2xl bg-black/20 border border-white/5 overflow-hidden relative">
-                    <div id="loader" class="absolute inset-0 flex items-center justify-center flex-col text-white/40">
-                        <div class="animate-spin mb-4">
-                            <i data-lucide="loader-2" class="w-10 h-10"></i>
-                        </div>
-                        <p>Подключение к защищенному каналу...</p>
+            <div class="flex-1 flex overflow-hidden">
+                <div class="w-80 border-r border-white/5 hidden lg:flex flex-col bg-black/10">
+                    <div class="p-4">
+                        <input type="text" placeholder="Поиск диалогов..." class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-indigo-500">
                     </div>
-
-                    <iframe id="app-frame" src="https://web.whatsapp.com" class="w-full h-full border-none opacity-0 transition-opacity duration-500"></iframe>
+                    <div class="flex-1 overflow-y-auto" id="contacts-list">
+                        </div>
                 </div>
-            </section>
+
+                <div class="flex-1 flex flex-col relative">
+                    <div id="messages-container" class="flex-1 p-6 overflow-y-auto space-y-4">
+                        </div>
+
+                    <div class="p-6 bg-black/40">
+                        <div class="flex items-center gap-4 bg-white/5 p-2 rounded-2xl border border-white/10">
+                            <button class="p-2 text-white/40 hover:text-white"><i data-lucide="plus"></i></button>
+                            <input id="msg-input" type="text" placeholder="Напишите сообщение..." class="flex-1 bg-transparent border-none outline-none text-sm p-2">
+                            <button onclick="sendMessage()" class="p-3 bg-indigo-600 rounded-xl text-white hover:scale-105 transition active:scale-95">
+                                <i data-lucide="send" class="w-5 h-5"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </main>
     </div>
 
     <script>
-        // Инициализация иконок
         lucide.createIcons();
 
-        // Аудио контекст для "красивых" звуков
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        let currentApp = 'wa';
+        const messages = {
+            wa: [{ sender: 'System', text: 'Добро пожаловать в защищенный чат WhatsApp', time: '10:00' }],
+            ig: [{ sender: 'System', text: 'Ваша лента Instagram обновлена', time: '10:05' }]
+        };
 
-        function playSound(type) {
+        // Звуковой движок
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        function playUINoise(freq, type) {
             const osc = audioCtx.createOscillator();
             const gain = audioCtx.createGain();
+            osc.type = type || 'sine';
+            osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+            gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
             osc.connect(gain);
             gain.connect(audioCtx.destination);
-
-            if (type === 'click') {
-                osc.type = 'sine';
-                osc.frequency.setValueAtTime(880, audioCtx.currentTime);
-                osc.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 0.1);
-                gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
-                osc.start();
-                osc.stop(audioCtx.currentTime + 0.1);
-            }
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.2);
         }
 
-        // Логика переключения вкладок
-        function switchTab(tab) {
-            playSound('click');
+        function setApp(app) {
+            currentApp = app;
+            playUINoise(440, 'triangle');
             
-            // Сброс активных кнопок
-            document.querySelectorAll('.sidebar-item').forEach(btn => btn.classList.remove('active'));
+            // UI Updates
+            document.getElementById('nav-wa').classList.toggle('active-tab', app === 'wa');
+            document.getElementById('nav-ig').classList.toggle('active-tab', app === 'ig');
+            document.getElementById('app-title').innerText = app === 'wa' ? 'WhatsApp Messenger' : 'Instagram Direct';
             
-            const frame = document.getElementById('app-frame');
-            const title = document.getElementById('current-title');
-            const loader = document.getElementById('loader');
-            
-            loader.style.opacity = "1";
-            frame.style.opacity = "0";
+            renderMessages();
+        }
 
-            if (tab === 'whatsapp') {
-                document.getElementById('btn-whatsapp').classList.add('active');
-                title.innerText = 'WhatsApp';
-                frame.src = 'https://web.whatsapp.com';
-            } else if (tab === 'instagram') {
-                document.getElementById('btn-instagram').classList.add('active');
-                title.innerText = 'Instagram';
-                frame.src = 'https://www.instagram.com/direct/inbox/';
-            } else if (tab === 'settings') {
-                document.getElementById('btn-settings').classList.add('active');
-                title.innerText = 'Настройки хаба';
-                frame.src = 'about:blank'; // Здесь может быть твоя страница настроек
-            }
+        function renderMessages() {
+            const container = document.getElementById('messages-container');
+            container.innerHTML = messages[currentApp].map(m => `
+                <div class="flex ${m.sender === 'You' ? 'justify-end' : 'justify-start'}">
+                    <div class="chat-bubble p-4 rounded-2xl ${m.sender === 'You' ? 'bg-indigo-600 text-white' : 'bg-white/10 text-white/90'}">
+                        <p class="text-sm">${m.text}</p>
+                        <span class="text-[10px] opacity-40 mt-1 block">${m.time}</span>
+                    </div>
+                </div>
+            `).join('');
+            container.scrollTop = container.scrollHeight;
+        }
 
-            // Имитация загрузки
+        function sendMessage() {
+            const input = document.getElementById('msg-input');
+            if(!input.value) return;
+
+            playUINoise(880, 'sine');
+            messages[currentApp].push({
+                sender: 'You',
+                text: input.value,
+                time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
+            });
+            
+            input.value = '';
+            renderMessages();
+
+            // Имитация ответа через секунду
             setTimeout(() => {
-                loader.style.opacity = "0";
-                frame.style.opacity = "1";
+                playUINoise(660, 'sine');
+                messages[currentApp].push({
+                    sender: 'Bot',
+                    text: 'Сообщение доставлено и зашифровано.',
+                    time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
+                });
+                renderMessages();
             }, 1000);
         }
 
-        // Первичная инициализация
-        window.onload = () => {
-            setTimeout(() => {
-                document.getElementById('loader').style.opacity = "0";
-                document.getElementById('app-frame').style.opacity = "1";
-            }, 2000);
-        };
+        function openExternal() {
+            const url = currentApp === 'wa' ? 'https://web.whatsapp.com' : 'https://www.instagram.com/direct/inbox/';
+            window.open(url, '_blank', 'width=1000,height=800');
+        }
+
+        // Рендер демо-контактов
+        const contacts = ['Александр', 'Дизайн Группа', 'Мария', 'Work Chat'];
+        document.getElementById('contacts-list').innerHTML = contacts.map(c => `
+            <div class="p-4 flex items-center gap-3 hover:bg-white/5 cursor-pointer border-b border-white/5">
+                <div class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-xs">${c[0]}</div>
+                <div>
+                    <p class="text-sm font-semibold">${c}</p>
+                    <p class="text-[10px] text-white/30">Последнее сообщение...</p>
+                </div>
+            </div>
+        `).join('');
+
+        renderMessages();
     </script>
 </body>
 </html>
