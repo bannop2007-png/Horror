@@ -3,260 +3,245 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Elysium Imperial | Prime OS</title>
+    <title>Elysium Imperial | Ultimate</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.5.2/peerjs.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@200;400;600&display=swap');
         body { font-family: 'Plus Jakarta Sans', sans-serif; background: #000; color: #fff; height: 100vh; overflow: hidden; }
-        .glass { background: rgba(15, 15, 15, 0.7); backdrop-filter: blur(30px); border: 1px solid rgba(255,255,255,0.08); }
+        .glass { background: rgba(15, 15, 15, 0.75); backdrop-filter: blur(30px); border: 1px solid rgba(255,255,255,0.08); }
         .gold { color: #d4af37; }
-        .gold-border { border-color: rgba(212, 175, 55, 0.3); }
+        .btn-action { transition: 0.3s; border: 1px solid rgba(255,255,255,0.1); }
+        .btn-action:hover { border-color: #d4af37; transform: translateY(-2px); }
+        .active-tab { color: #d4af37 !important; border-bottom: 2px solid #d4af37; }
         
-        /* Stories Style */
-        .story-card { min-width: 120px; height: 160px; border-radius: 20px; background: linear-gradient(to bottom, rgba(212,175,55,0.2), rgba(0,0,0,0.8)); border: 1px solid rgba(255,255,255,0.1); flex-shrink: 0; cursor: pointer; transition: 0.3s; position: relative; overflow: hidden; }
-        .story-card:hover { transform: translateY(-5px); border-color: #d4af37; }
+        /* Стили чата */
+        .msg { max-width: 70%; padding: 12px 16px; border-radius: 20px; font-size: 14px; margin-bottom: 10px; animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
         
-        .msg-bubble { max-width: 75%; padding: 12px 18px; border-radius: 22px; font-size: 14px; margin-bottom: 8px; }
-        .custom-scroll::-webkit-scrollbar { width: 4px; }
-        .custom-scroll::-webkit-scrollbar-thumb { background: rgba(212,175,55,0.2); border-radius: 10px; }
+        .custom-scroll::-webkit-scrollbar { width: 3px; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #d4af37; }
     </style>
 </head>
-<body class="flex p-4 gap-4 h-screen">
+<body class="flex flex-col h-screen p-4 gap-4">
 
-    <nav class="w-20 glass rounded-[35px] flex flex-col items-center py-10 gap-8 shadow-2xl">
-        <div class="gold text-2xl font-bold italic">Σ</div>
-        <button onclick="showTab('chat')" class="p-3 text-white/40 hover:text-gold transition-all"><i data-lucide="message-square"></i></button>
-        <button onclick="showTab('updates')" class="p-3 text-white/40 hover:text-gold transition-all"><i data-lucide="layout-grid"></i></button>
-        <button onclick="showTab('profile')" class="p-3 text-white/40 hover:text-gold transition-all"><i data-lucide="user-circle"></i></button>
-        <div class="mt-auto">
-            <div id="status-led" class="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
+    <header class="h-20 glass rounded-[30px] px-8 flex items-center justify-between shadow-2xl">
+        <div class="flex items-center gap-6">
+            <h1 class="gold font-bold italic text-xl tracking-tighter">ELYSIUM</h1>
+            <div class="h-8 w-[1px] bg-white/10"></div>
+            <div>
+                <p class="text-[10px] text-white/30 uppercase tracking-widest">My Personal Address</p>
+                <p id="my-id-display" class="text-sm font-mono gold">Connecting...</p>
+            </div>
         </div>
-    </nav>
-
-    <div class="flex-1 flex flex-col gap-4">
         
-        <div id="stories-container" class="h-44 flex gap-4 overflow-x-auto custom-scroll pb-2">
-            <div class="story-card flex flex-col justify-end p-4 border-dashed border-gold/50" onclick="addStory()">
-                <i data-lucide="plus" class="w-6 h-6 text-gold mb-2"></i>
-                <p class="text-[10px] font-bold uppercase">Add Story</p>
+        <nav class="flex gap-8 h-full">
+            <button onclick="switchMode('chat')" id="btn-chat" class="text-sm uppercase tracking-widest text-white/40 hover:text-white active-tab">Chat</button>
+            <button onclick="switchMode('calls')" id="btn-calls" class="text-sm uppercase tracking-widest text-white/40 hover:text-white">Voice Calls</button>
+            <button onclick="switchMode('profile')" id="btn-profile" class="text-sm uppercase tracking-widest text-white/40 hover:text-white">Profile</button>
+            <button onclick="switchMode('updates')" id="btn-updates" class="text-sm uppercase tracking-widest text-white/40 hover:text-white">Updates</button>
+        </nav>
+    </header>
+
+    <main class="flex-1 glass rounded-[40px] relative overflow-hidden flex flex-col">
+        
+        <section id="sec-chat" class="flex-1 flex flex-col p-6">
+            <div class="flex gap-4 mb-4">
+                <input id="chat-target-id" type="text" placeholder="ID собеседника для чата..." class="bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-sm flex-1 outline-none focus:border-gold">
+                <button onclick="startChatSession()" class="bg-white/10 px-6 rounded-xl text-xs uppercase font-bold hover:bg-white/20 transition">Начать чат</button>
             </div>
-        </div>
-
-        <main class="flex-1 glass rounded-[40px] overflow-hidden flex relative">
-            
-            <section id="tab-chat" class="flex-1 flex flex-col p-8">
-                <header class="flex justify-between items-center mb-6">
-                    <div>
-                        <h2 class="text-xl font-light">Imperial <span class="gold">Channel</span></h2>
-                        <p id="peer-status" class="text-[10px] text-white/20 uppercase tracking-widest">No active connection</p>
-                    </div>
-                    <div class="flex gap-3">
-                        <button onclick="startVoiceCall()" class="p-3 glass rounded-full text-green-500 hover:bg-green-500 hover:text-white transition-all"><i data-lucide="phone"></i></button>
-                    </div>
-                </header>
-                
-                <div id="chat-box" class="flex-1 overflow-y-auto space-y-4 pr-4 custom-scroll"></div>
-                
-                <div class="mt-6 flex gap-3 bg-white/5 p-2 rounded-[25px] border border-white/5 focus-within:gold-border transition-all">
-                    <input id="msg-input" type="text" placeholder="Зашифрованное сообщение..." class="flex-1 bg-transparent border-none outline-none px-6 text-sm">
-                    <button onclick="sendMsg()" class="bg-[#d4af37] text-black p-4 rounded-[20px] hover:scale-105 transition"><i data-lucide="zap" class="w-5 h-5"></i></button>
-                </div>
-            </section>
-
-            <section id="tab-profile" class="hidden flex-1 p-12">
-                <h2 class="text-3xl font-light mb-10">System <span class="gold">Profile</span></h2>
-                <div class="max-w-md space-y-8">
-                    <div class="flex items-center gap-6 mb-10">
-                        <div class="w-24 h-24 rounded-full bg-gradient-to-tr from-gold to-transparent p-1">
-                            <div id="profile-img" class="w-full h-full bg-black rounded-full flex items-center justify-center">
-                                <i data-lucide="user" class="w-10 h-10 text-white/20"></i>
-                            </div>
-                        </div>
-                        <button onclick="changeAvatar()" class="text-xs text-gold underline">Изменить фото</button>
-                    </div>
-                    
-                    <div class="space-y-4">
-                        <div>
-                            <label class="text-[10px] uppercase text-white/30 tracking-widest">Отображаемое имя</label>
-                            <input id="prof-name" type="text" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 mt-1 outline-none focus:border-gold">
-                        </div>
-                        <div>
-                            <label class="text-[10px] uppercase text-white/30 tracking-widest">Персональный ID (Буквы и цифры)</label>
-                            <input id="prof-id" type="text" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 mt-1 outline-none focus:border-gold" placeholder="например: king777">
-                        </div>
-                    </div>
-                    <button onclick="saveProfile()" class="w-full bg-white text-black font-bold py-4 rounded-2xl hover:bg-gold transition">Сохранить изменения</button>
-                </div>
-            </section>
-
-            <div id="call-screen" class="hidden absolute inset-0 bg-black/90 backdrop-blur-xl flex flex-col items-center justify-center z-50">
-                <div class="w-32 h-32 rounded-full border-2 border-gold animate-pulse mb-8 flex items-center justify-center">
-                    <i data-lucide="mic" class="w-12 h-12 text-gold"></i>
-                </div>
-                <h3 class="text-2xl font-light mb-2">Голосовой канал</h3>
-                <p id="call-timer" class="text-gold text-xs mb-12 uppercase tracking-widest">00:00</p>
-                <button onclick="endCall()" class="w-20 h-20 bg-red-600 rounded-full flex items-center justify-center hover:scale-110 transition"><i data-lucide="phone-off"></i></button>
+            <div id="chat-history" class="flex-1 overflow-y-auto pr-4 custom-scroll space-y-2">
+                <div class="text-center text-white/10 text-xs mt-20">Система готова к приему и отправке пакетов данных</div>
             </div>
+            <div class="mt-4 flex gap-3 bg-white/5 p-2 rounded-2xl border border-white/5">
+                <input id="chat-input" type="text" placeholder="Сообщение..." class="flex-1 bg-transparent border-none outline-none px-4 text-sm">
+                <button onclick="sendMessage()" class="bg-gold text-black p-3 rounded-xl hover:scale-105 transition"><i data-lucide="send" class="w-5 h-5"></i></button>
+            </div>
+        </section>
 
-        </main>
-    </div>
+        <section id="sec-calls" class="hidden flex-1 flex flex-col items-center justify-center p-10">
+            <div class="w-full max-w-md text-center space-y-8">
+                <div class="relative inline-block">
+                    <div id="call-ring" class="w-32 h-32 rounded-full border border-gold/20 flex items-center justify-center">
+                        <i data-lucide="mic" class="w-12 h-12 text-gold"></i>
+                    </div>
+                </div>
+                <div class="space-y-2">
+                    <h2 class="text-2xl font-light">Voice <span class="gold">Terminal</span></h2>
+                    <p class="text-xs text-white/30 uppercase">Зашифрованные звонки точка-точка</p>
+                </div>
+                <input id="call-target-id" type="text" placeholder="Введите ID для звонка..." class="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-center text-lg outline-none focus:border-gold transition-all">
+                <div class="flex justify-center gap-6">
+                    <button id="btn-start-call" onclick="makeCall()" class="w-16 h-16 bg-green-600 rounded-full flex items-center justify-center hover:scale-110 transition shadow-[0_0_20px_rgba(22,163,74,0.4)]"><i data-lucide="phone"></i></button>
+                    <button id="btn-end-call" onclick="hangUp()" class="hidden w-16 h-16 bg-red-600 rounded-full flex items-center justify-center hover:scale-110 transition shadow-[0_0_20px_rgba(220,38,38,0.4)]"><i data-lucide="phone-off"></i></button>
+                </div>
+            </div>
+        </section>
+
+        <section id="sec-profile" class="hidden flex-1 p-12">
+            <h2 class="text-3xl font-light mb-10">Account <span class="gold">Settings</span></h2>
+            <div class="max-w-sm space-y-6">
+                <div>
+                    <label class="text-[10px] uppercase text-white/30">Ваш уникальный ID</label>
+                    <input id="prof-id" type="text" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 mt-1 outline-none focus:border-gold gold font-mono">
+                    <p class="text-[9px] text-white/20 mt-2 italic">* Изменение ID приведет к перезагрузке системы</p>
+                </div>
+                <div>
+                    <label class="text-[10px] uppercase text-white/30">Имя в сети</label>
+                    <input id="prof-name" type="text" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 mt-1 outline-none focus:border-gold">
+                </div>
+                <button onclick="saveProfile()" class="w-full bg-white text-black font-bold py-4 rounded-xl hover:bg-gold transition">Обновить данные</button>
+            </div>
+        </section>
+
+        <section id="sec-updates" class="hidden flex-1 p-12 overflow-y-auto custom-scroll">
+            <h2 class="text-3xl font-light mb-10">System <span class="gold">Feed</span></h2>
+            <div id="updates-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                </div>
+        </section>
+
+    </main>
 
     <audio id="remote-audio" autoplay></audio>
 
     <script>
         lucide.createIcons();
         
-        let userConfig = JSON.parse(localStorage.getItem('elysium_user')) || {
-            name: 'Elite User',
-            id: 'elysium_' + Math.random().toString(36).substr(2, 5),
-            stories: [
-                { title: 'Welcome', desc: 'Система Elysium v4 запущена.' },
-                { title: 'Update', desc: 'Добавлены звонки и профили.' }
+        let config = JSON.parse(localStorage.getItem('ely_cfg')) || {
+            name: 'User_' + Math.floor(Math.random()*999),
+            id: 'ely_' + Math.random().toString(36).substr(2, 4),
+            feed: [
+                { title: 'v5.0 Deployment', body: 'Раздельные модули Чата и Звонков успешно запущены.', type: 'System' },
+                { title: 'P2P Protocol', body: 'Улучшена стабильность соединения между узлами.', type: 'Update' }
             ]
         };
 
-        let peer, conn, currentCall, myStream;
+        let peer, conn, currentCall, localStream;
 
-        // Инициализация системы
-        function initSystem() {
-            document.getElementById('prof-name').value = userConfig.name;
-            document.getElementById('prof-id').value = userConfig.id;
-            
-            // Запуск Peer с кастомным ID
-            peer = new Peer(userConfig.id);
-            
-            peer.on('open', (id) => {
-                document.getElementById('status-led').style.backgroundColor = '#22c55e';
-                console.log("System Online: " + id);
-                renderStories();
-            });
+        function init() {
+            document.getElementById('prof-id').value = config.id;
+            document.getElementById('prof-name').value = config.name;
+            document.getElementById('my-id-display').innerText = config.id;
 
-            peer.on('connection', (c) => {
+            // Запуск PeerJS с твоим ID
+            peer = new Peer(config.id);
+
+            peer.on('open', id => console.log('Online as: ' + id));
+            
+            // Входящее сообщение
+            peer.on('connection', c => {
                 conn = c;
-                setupChat();
+                setupChatListeners();
+                switchMode('chat');
             });
 
-            peer.on('call', (call) => {
-                if(confirm("Входящий вызов. Принять?")) {
+            // Входящий звонок
+            peer.on('call', call => {
+                if(confirm("Входящий голосовой вызов от " + call.peer)) {
                     navigator.mediaDevices.getUserMedia({audio: true}).then(stream => {
-                        myStream = stream;
+                        localStream = stream;
                         call.answer(stream);
-                        showCallScreen(call);
+                        handleCall(call);
                     });
                 }
             });
+
+            renderUpdates();
         }
 
+        // --- УПРАВЛЕНИЕ РЕЖИМАМИ ---
+        function switchMode(mode) {
+            ['chat', 'calls', 'profile', 'updates'].forEach(m => {
+                document.getElementById('sec-' + m).classList.toggle('hidden', m !== mode);
+                document.getElementById('btn-' + m).classList.toggle('active-tab', m === mode);
+            });
+        }
+
+        // --- ЛОГИКА ПРОФИЛЯ ---
         function saveProfile() {
-            const newId = document.getElementById('prof-id').value.trim();
-            const newName = document.getElementById('prof-name').value.trim();
-            
-            if(newId !== userConfig.id) {
-                alert("ID изменен. Система будет перезагружена для обновления узла.");
-            }
-            
-            userConfig.name = newName;
-            userConfig.id = newId;
-            localStorage.setItem('elysium_user', JSON.stringify(userConfig));
+            config.name = document.getElementById('prof-name').value;
+            config.id = document.getElementById('prof-id').value;
+            localStorage.setItem('ely_cfg', JSON.stringify(config));
             location.reload();
         }
 
-        function renderStories() {
-            const container = document.getElementById('stories-container');
-            const staticContent = container.firstElementChild.outerHTML;
-            container.innerHTML = staticContent + userConfig.stories.map(s => `
-                <div class="story-card flex flex-col justify-end p-4">
-                    <p class="text-[10px] font-bold text-gold uppercase mb-1">${s.title}</p>
-                    <p class="text-[9px] text-white/60 leading-tight">${s.desc}</p>
-                </div>
-            `).join('');
-            lucide.createIcons();
+        // --- ЛОГИКА ЧАТА ---
+        function startChatSession() {
+            const tid = document.getElementById('chat-target-id').value;
+            if(!tid) return;
+            conn = peer.connect(tid);
+            setupChatListeners();
         }
 
-        function addStory() {
-            const title = prompt("Заголовок обновления:");
-            const desc = prompt("Что нового?");
-            if(title && desc) {
-                userConfig.stories.unshift({title, desc});
-                localStorage.setItem('elysium_user', JSON.stringify(userConfig));
-                renderStories();
-            }
+        function setupChatListeners() {
+            conn.on('open', () => addMsg('System', 'Безопасный канал связи открыт', 'center'));
+            conn.on('data', data => addMsg(data.user, data.msg, 'left'));
         }
 
-        // --- ЛОГИКА СВЯЗИ ---
-        function showTab(tab) {
-            ['chat', 'profile', 'updates'].forEach(t => {
-                const el = document.getElementById('tab-' + t);
-                if(el) el.classList.toggle('hidden', t !== tab);
-            });
+        function sendMessage() {
+            const input = document.getElementById('chat-input');
+            if(!input.value || !conn) return;
+            conn.send({ user: config.name, msg: input.value });
+            addMsg('You', input.value, 'right');
+            input.value = '';
         }
 
-        function startVoiceCall() {
-            const targetId = prompt("Введите ID друга для звонка:");
-            if(!targetId) return;
-            
-            navigator.mediaDevices.getUserMedia({audio: true}).then(stream => {
-                myStream = stream;
-                const call = peer.call(targetId, stream);
-                showCallScreen(call);
-            }).catch(() => alert("Микрофон недоступен. Проверьте HTTPS или настройки браузера."));
-        }
-
-        function showCallScreen(call) {
-            currentCall = call;
-            document.getElementById('call-screen').classList.remove('hidden');
-            call.on('stream', (remoteStream) => {
-                document.getElementById('remote-audio').srcObject = remoteStream;
-            });
-        }
-
-        function endCall() {
-            if(currentCall) currentCall.close();
-            if(myStream) myStream.getTracks().forEach(t => t.stop());
-            document.getElementById('call-screen').classList.add('hidden');
-        }
-
-        function sendMsg() {
-            const input = document.getElementById('msg-input');
-            const targetId = prompt("Введите ID друга для отправки (если еще не соединены):", conn ? conn.peer : "");
-            
-            if(!conn || conn.peer !== targetId) {
-                conn = peer.connect(targetId);
-                setupChat();
-            }
-
-            setTimeout(() => {
-                conn.send({ user: userConfig.name, text: input.value });
-                addBubble(userConfig.name, input.value, 'right');
-                input.value = '';
-            }, 500);
-        }
-
-        function setupChat() {
-            conn.on('open', () => {
-                document.getElementById('peer-status').innerText = "Connected to: " + conn.peer;
-                addBubble('System', 'Канал связи открыт', 'center');
-            });
-            conn.on('data', (data) => {
-                addBubble(data.user, data.text, 'left');
-            });
-        }
-
-        function addBubble(name, text, side) {
-            const box = document.getElementById('chat-box');
+        function addMsg(user, text, side) {
+            const box = document.getElementById('chat-history');
             const div = document.createElement('div');
             div.className = `flex ${side === 'right' ? 'justify-end' : side === 'left' ? 'justify-start' : 'justify-center'}`;
-            
-            const style = side === 'right' ? 'bg-indigo-600 text-white' : side === 'left' ? 'bg-white/10 text-white' : 'text-white/20 text-[10px]';
-            div.innerHTML = `<div class="msg-bubble ${style}">${side !== 'center' ? `<p class="text-[9px] opacity-50 mb-1">${name}</p>` : ''}${text}</div>`;
-            
+            const bg = side === 'right' ? 'bg-indigo-600' : side === 'left' ? 'bg-white/10' : 'text-white/20 text-[10px] uppercase';
+            div.innerHTML = `<div class="msg ${bg}">${side !== 'center' ? `<p class="text-[9px] opacity-40 mb-1">${user}</p>` : ''}${text}</div>`;
             box.appendChild(div);
             box.scrollTop = box.scrollHeight;
         }
 
-        window.onload = initSystem;
+        // --- ЛОГИКА ЗВОНКОВ ---
+        function makeCall() {
+            const tid = document.getElementById('call-target-id').value;
+            if(!tid) return;
+            
+            navigator.mediaDevices.getUserMedia({audio: true}).then(stream => {
+                localStream = stream;
+                const call = peer.call(tid, stream);
+                handleCall(call);
+            });
+        }
+
+        function handleCall(call) {
+            currentCall = call;
+            document.getElementById('btn-start-call').classList.add('hidden');
+            document.getElementById('btn-end-call').classList.remove('hidden');
+            document.getElementById('call-ring').classList.add('animate-pulse', 'border-green-500');
+            
+            call.on('stream', remoteStream => {
+                document.getElementById('remote-audio').srcObject = remoteStream;
+            });
+            call.on('close', hangUp);
+        }
+
+        function hangUp() {
+            if(currentCall) currentCall.close();
+            if(localStream) localStream.getTracks().forEach(t => t.stop());
+            document.getElementById('btn-start-call').classList.remove('hidden');
+            document.getElementById('btn-end-call').classList.add('hidden');
+            document.getElementById('call-ring').classList.remove('animate-pulse', 'border-green-500');
+        }
+
+        // --- ЛОГИКА ОБНОВЛЕНИЙ (ПОСТЫ) ---
+        function renderUpdates() {
+            const list = document.getElementById('updates-list');
+            list.innerHTML = config.feed.map(item => `
+                <div class="glass p-6 rounded-[25px] border-white/5 hover:border-gold/30 transition">
+                    <span class="text-[9px] font-bold gold uppercase tracking-tighter">${item.type}</span>
+                    <h3 class="text-sm font-bold mt-2 mb-3">${item.title}</h3>
+                    <p class="text-xs text-white/50 leading-relaxed">${item.body}</p>
+                </div>
+            `).join('');
+        }
+
+        window.onload = init;
     </script>
 </body>
 </html>
