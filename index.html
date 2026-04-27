@@ -3,28 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Elysium Imperial | Central Terminal</title>
+    <title>Elysium Imperial | Private Network</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Plus+Jakarta+Sans:wght@200;400;600&display=swap');
-        
         :root { --gold: #d4af37; --bg: #050505; }
         body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: #a1a1aa; height: 100vh; overflow: hidden; }
-
-        /* Элитные стили */
-        .glass { background: rgba(255, 255, 255, 0.02); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.05); }
+        .glass { background: rgba(255, 255, 255, 0.02); backdrop-filter: blur(25px); border: 1px solid rgba(255, 255, 255, 0.05); }
         .gold-glow { text-shadow: 0 0 10px rgba(212, 175, 55, 0.3); color: var(--gold); font-family: 'Cinzel', serif; }
-        .sui-aura { border: 1px solid rgba(99, 102, 241, 0.2); box-shadow: inset 0 0 20px rgba(99, 102, 241, 0.05); }
-        
-        /* Виджеты */
-        .widget-card { background: rgba(255,255,255,0.01); border-radius: 20px; padding: 15px; border: 1px solid rgba(255,255,255,0.03); }
-        
-        .msg-anim { animation: fadeInUp 0.4s ease-out forwards; }
-        @keyframes fadeInUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
-
-        .drop-zone { border: 2px dashed rgba(212, 175, 55, 0.1); transition: 0.3s; }
-        .drop-zone:hover { border-color: var(--gold); background: rgba(212, 175, 55, 0.02); }
+        .active-call { animation: pulse 2s infinite; background: rgba(220, 38, 38, 0.2); }
+        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.4); } 70% { box-shadow: 0 0 0 15px rgba(220, 38, 38, 0); } 100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); } }
+        .msg-anim { animation: fadeInUp 0.3s ease-out forwards; }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body class="flex p-4 gap-4 h-screen">
@@ -32,166 +24,182 @@
     <nav class="w-20 glass rounded-[30px] flex flex-col items-center py-8 gap-10">
         <div class="gold-glow text-2xl font-bold">Σ</div>
         <div class="flex flex-col gap-6 flex-1">
-            <button onclick="showSection('chat')" class="text-white/20 hover:text-white transition-all"><i data-lucide="message-square"></i></button>
-            <button onclick="showSection('files')" class="text-white/20 hover:text-white transition-all"><i data-lucide="folder"></i></button>
-            <button onclick="showSection('widgets')" class="text-white/20 hover:text-white transition-all"><i data-lucide="layout-grid"></i></button>
+            <button onclick="switchTab('chat')" class="text-white/20 hover:text-white transition-all"><i data-lucide="message-circle"></i></button>
+            <button onclick="switchTab('friends')" class="text-white/20 hover:text-white transition-all"><i data-lucide="users"></i></button>
+            <button onclick="switchTab('calls')" class="text-white/20 hover:text-white transition-all"><i data-lucide="phone"></i></button>
         </div>
-        <button class="text-white/10 hover:text-red-500 transition-all"><i data-lucide="power"></i></button>
+        <button onclick="location.reload()" class="text-white/10 hover:text-gold transition-all"><i data-lucide="refresh-cw"></i></button>
     </nav>
 
     <div class="flex-1 flex flex-col gap-4">
-        
         <header class="h-20 glass rounded-[25px] px-8 flex items-center justify-between">
             <div class="flex items-center gap-6">
                 <div>
-                    <p class="text-[10px] uppercase tracking-[0.3em] text-white/20">Terminal ID</p>
-                    <p class="text-sm font-mono text-white/80">ELY-2026-X</p>
+                    <p class="text-[10px] uppercase tracking-[0.3em] text-white/20">Your Private ID</p>
+                    <p id="my-id" class="text-sm font-mono text-gold font-bold">Connecting...</p>
                 </div>
-                <div class="h-8 w-[1px] bg-white/5"></div>
-                <div id="clock" class="text-lg font-light text-white/90">00:00:00</div>
             </div>
-            
-            <div class="flex items-center gap-4">
-                <div class="widget-card flex items-center gap-3 py-2 px-4">
-                    <i data-lucide="trending-up" class="w-4 h-4 text-green-500"></i>
-                    <span class="text-xs text-white/60">BTC: <b class="text-white">$64,210</b></span>
-                </div>
-                <div class="w-10 h-10 rounded-full border border-gold/30 p-1">
-                    <div class="w-full h-full bg-gradient-to-br from-gold/50 to-transparent rounded-full"></div>
-                </div>
+            <div id="call-status" class="hidden flex items-center gap-4 px-4 py-2 rounded-full border border-red-500/30 text-red-500 text-xs animate-pulse">
+                <i data-lucide="phone-forwarded" class="w-4 h-4"></i> В эфире
             </div>
         </header>
 
-        <main class="flex-1 glass rounded-[35px] overflow-hidden flex">
-            
-            <section id="chat-section" class="flex-1 flex flex-col">
-                <div id="chat-box" class="flex-1 overflow-y-auto p-10 space-y-6">
-                    </div>
-                
-                <div class="p-8">
-                    <div class="max-w-4xl mx-auto flex items-center gap-4 bg-white/5 border border-white/5 rounded-[25px] p-2 focus-within:border-gold/30 transition-all">
-                        <button onclick="startVoice()" class="p-4 text-white/20 hover:text-indigo-400 transition-all"><i data-lucide="mic"></i></button>
-                        <input id="user-input" type="text" placeholder="Запросить данные у SUI AI..." class="flex-1 bg-transparent border-none outline-none text-sm text-white">
-                        <button onclick="handleAction()" class="bg-indigo-600/20 hover:bg-indigo-600 text-indigo-400 hover:text-white p-4 rounded-[20px] transition-all">
-                            <i data-lucide="zap" class="w-5 h-5"></i>
-                        </button>
-                    </div>
+        <main class="flex-1 glass rounded-[35px] overflow-hidden flex flex-col">
+            <div id="view-chat" class="flex-1 flex flex-col p-6">
+                <div id="chat-box" class="flex-1 overflow-y-auto space-y-4 px-4"></div>
+                <div class="mt-4 flex gap-4 bg-white/5 p-2 rounded-2xl border border-white/5">
+                    <input id="msg-input" type="text" placeholder="Написать сообщение..." class="flex-1 bg-transparent border-none outline-none px-4 text-white text-sm">
+                    <button onclick="sendMsg()" class="bg-indigo-600 p-3 rounded-xl hover:scale-105 transition"><i data-lucide="send" class="w-5 h-5 text-white"></i></button>
                 </div>
-            </section>
+            </div>
 
-            <section id="files-section" class="hidden flex-1 p-10 flex flex-col gap-6">
-                <h2 class="gold-glow text-xl">Cloud Archive</h2>
-                <div class="drop-zone flex-1 rounded-[30px] flex flex-col items-center justify-center text-white/20 gap-4">
-                    <i data-lucide="upload-cloud" class="w-12 h-12"></i>
-                    <p class="text-sm">Перетащите файлы сюда для шифрования</p>
+            <div id="view-friends" class="hidden flex-1 p-10">
+                <h2 class="gold-glow text-xl mb-6">Network Contacts</h2>
+                <div class="flex gap-4 mb-8">
+                    <input id="friend-id-input" type="text" placeholder="Введите ID друга..." class="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 text-sm text-white">
+                    <button onclick="connectToFriend()" class="bg-gold/80 text-black px-6 py-3 rounded-xl font-bold hover:bg-gold transition">Добавить</button>
                 </div>
-            </section>
+                <div id="friends-list" class="space-y-3">
+                    </div>
+            </div>
+
+            <div id="view-calls" class="hidden flex-1 p-10 flex flex-col items-center justify-center text-center">
+                <div class="w-32 h-32 rounded-full bg-white/5 flex items-center justify-center mb-6 border border-white/10">
+                    <i data-lucide="mic" class="w-12 h-12 text-gold"></i>
+                </div>
+                <h2 id="call-target-name" class="text-2xl text-white mb-2">Голосовой узел</h2>
+                <p class="text-white/40 mb-8">Зашифрованное соединение Peer-to-Peer</p>
+                <div class="flex gap-6">
+                    <button onclick="endCall()" class="w-16 h-16 bg-red-600 rounded-full flex items-center justify-center hover:scale-110 transition"><i data-lucide="phone-off" class="text-white"></i></button>
+                </div>
+                <audio id="remote-audio" autoplay></audio>
+            </div>
         </main>
     </div>
 
-    <aside class="w-80 flex flex-col gap-4">
-        <div class="glass rounded-[30px] p-6 sui-aura">
-            <div class="flex justify-between items-center mb-6">
-                <span class="text-xs font-bold gold-glow uppercase">SUI AI Core</span>
-                <span class="w-2 h-2 bg-indigo-500 rounded-full shadow-[0_0_10px_#6366f1]"></span>
-            </div>
-            <div class="text-sm text-white/60 leading-relaxed mb-4" id="sui-status">
-                Система готова. Все модули (Чат, Файлы, Виджеты) активны.
-            </div>
-            <div class="space-y-2">
-                <div class="h-1 bg-white/5 rounded-full overflow-hidden">
-                    <div class="w-3/4 h-full bg-indigo-500"></div>
-                </div>
-                <p class="text-[9px] text-white/20 uppercase tracking-widest">Memory Load: 74%</p>
-            </div>
-        </div>
-
-        <div class="glass rounded-[30px] flex-1 p-6 space-y-6">
-            <h3 class="text-[10px] font-bold text-white/30 uppercase tracking-[0.2em]">Environment</h3>
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-3xl text-white font-light">+22°C</p>
-                    <p class="text-xs text-white/40">Baku, Azerbaijan</p>
-                </div>
-                <i data-lucide="sun" class="w-8 h-8 text-yellow-500"></i>
-            </div>
-            <div class="h-[1px] bg-white/5"></div>
-            <h3 class="text-[10px] font-bold text-white/30 uppercase tracking-[0.2em]">New Updates</h3>
-            <div id="update-log" class="text-[11px] space-y-3">
-                </div>
-        </div>
-    </aside>
-
     <script>
+        // Инициализация
         lucide.createIcons();
+        let peer = new Peer(); 
+        let currentConn = null;
+        let currentCall = null;
 
-        // 1. Часы
-        setInterval(() => {
-            const now = new Date();
-            document.getElementById('clock').innerText = now.toLocaleTimeString();
-        }, 1000);
+        // Генерация и получение своего ID
+        peer.on('open', (id) => {
+            document.getElementById('my-id').innerText = id;
+            console.log('My ID is: ' + id);
+        });
 
-        // 2. Логика SUI AI
-        let msgs = [
-            { role: 'sui', text: 'Центральный терминал Elysium Imperial активен. Я SUI AI, готова предоставить отчет об обновлениях или принять файлы.' }
-        ];
+        // 1. ПРИЕМ СООБЩЕНИЙ
+        peer.on('connection', (conn) => {
+            currentConn = conn;
+            setupConn();
+        });
 
-        function render() {
+        // 2. ПРИЕМ ЗВОНКОВ
+        peer.on('call', (call) => {
+            if (confirm("Входящий элитный вызов. Принять?")) {
+                navigator.mediaDevices.getUserMedia({audio: true}).then((stream) => {
+                    call.answer(stream);
+                    handleCall(call);
+                });
+            }
+        });
+
+        function setupConn() {
+            currentConn.on('data', (data) => {
+                addMessage('Friend', data, 'friend');
+                playSfx('message');
+            });
+            switchTab('chat');
+            updateFriendsList(currentConn.peer);
+        }
+
+        function connectToFriend() {
+            const id = document.getElementById('friend-id-input').value;
+            if(!id) return;
+            currentConn = peer.connect(id);
+            setupConn();
+            document.getElementById('friend-id-input').value = '';
+        }
+
+        function sendMsg() {
+            const input = document.getElementById('msg-input');
+            const text = input.value;
+            if(!text || !currentConn) return;
+            
+            currentConn.send(text);
+            addMessage('You', text, 'user');
+            input.value = '';
+            playSfx('send');
+        }
+
+        function startCall(id) {
+            navigator.mediaDevices.getUserMedia({audio: true}).then((stream) => {
+                const call = peer.call(id, stream);
+                handleCall(call);
+            });
+        }
+
+        function handleCall(call) {
+            currentCall = call;
+            switchTab('calls');
+            document.getElementById('call-status').classList.remove('hidden');
+            call.on('stream', (remoteStream) => {
+                const audio = document.getElementById('remote-audio');
+                audio.srcObject = remoteStream;
+                audio.play();
+            });
+        }
+
+        function endCall() {
+            if(currentCall) currentCall.close();
+            document.getElementById('call-status').classList.add('hidden');
+            switchTab('chat');
+        }
+
+        // Вспомогательные функции
+        function addMessage(user, text, type) {
             const box = document.getElementById('chat-box');
-            box.innerHTML = msgs.map(m => `
-                <div class="flex ${m.role === 'user' ? 'justify-end' : 'justify-start'} msg-anim">
-                    <div class="max-w-[80%] ${m.role === 'user' ? 'bg-white/5 border border-white/5 p-4 rounded-2xl' : 'sui-aura p-5 rounded-3xl bg-indigo-500/5 text-white/90'}">
-                        <p class="text-sm leading-relaxed">${m.text}</p>
-                    </div>
+            const div = document.createElement('div');
+            div.className = `flex ${type === 'user' ? 'justify-end' : 'justify-start'} msg-anim`;
+            div.innerHTML = `
+                <div class="max-w-[70%] p-4 rounded-2xl ${type === 'user' ? 'bg-indigo-600 text-white rounded-tr-none' : 'bg-white/5 border border-white/10 text-white/80 rounded-tl-none'}">
+                    <p class="text-xs opacity-50 mb-1">${user}</p>
+                    <p class="text-sm">${text}</p>
                 </div>
-            `).join('');
+            `;
+            box.appendChild(div);
             box.scrollTop = box.scrollHeight;
         }
 
-        function handleAction() {
-            const input = document.getElementById('user-input');
-            const val = input.value.trim().toLowerCase();
-            if(!val) return;
-
-            msgs.push({ role: 'user', text: input.value });
-            input.value = '';
-            render();
-
-            setTimeout(() => {
-                let res = "Команда принята. Ожидаю подключения API бэкенда.";
-                if(val.includes("что добавлено") || val.includes("детали")) {
-                    res = `<b>Отчет SUI AI:</b><br><br>
-                    1. <b>Imperial UI:</b> Полностью переработанный элитный интерфейс.<br>
-                    2. <b>Widgets:</b> Добавлены часы, крипто-трекер и погода.<br>
-                    3. <b>Voice Prep:</b> Интерфейс готов к голосовому вводу.<br>
-                    4. <b>Cloud:</b> Секция для хранения ваших файлов.<br>
-                    5. <b>SUI Logic:</b> Я теперь могу фильтровать ваши запросы по категориям.`;
-                }
-                msgs.push({ role: 'sui', text: res });
-                render();
-            }, 600);
+        function switchTab(tab) {
+            ['chat', 'friends', 'calls'].forEach(t => {
+                document.getElementById(`view-${t}`).classList.toggle('hidden', t !== tab);
+            });
         }
 
-        // 3. Переключение разделов
-        function showSection(name) {
-            document.getElementById('chat-section').classList.toggle('hidden', name !== 'chat');
-            document.getElementById('files-section').classList.toggle('hidden', name !== 'files');
-            // Звук переключения (мягкий)
-            const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3');
-            audio.volume = 0.1;
-            audio.play();
+        function updateFriendsList(id) {
+            const list = document.getElementById('friends-list');
+            list.innerHTML = `
+                <div class="glass p-4 rounded-2xl flex items-center justify-between border border-gold/10">
+                    <div class="flex items-center gap-3">
+                        <div class="w-2 h-2 bg-green-500 rounded-full"></div>
+                        <span class="text-sm text-white">${id.substring(0,8)}...</span>
+                    </div>
+                    <button onclick="startCall('${id}')" class="text-gold hover:scale-110 transition"><i data-lucide="phone"></i></button>
+                </div>
+            `;
+            lucide.createIcons();
         }
 
-        // 4. Update Log (Авто-заполнение)
-        const updates = ["UI Optimization", "SUI AI Memory Link", "Security Protocol v4"];
-        document.getElementById('update-log').innerHTML = updates.map(u => `
-            <div class="flex items-center gap-2">
-                <div class="w-1 h-1 bg-gold rounded-full"></div>
-                <span class="text-white/40">${u}</span>
-            </div>
-        `).join('');
-
-        window.onload = render;
+        function playSfx(type) {
+            const sounds = {
+                send: 'https://assets.mixkit.co/active_storage/sfx/2354/2354-preview.mp3',
+                message: 'https://assets.mixkit.co/active_storage/sfx/2357/2357-preview.mp3'
+            };
+            new Audio(sounds[type]).play();
+        }
     </script>
 </body>
 </html>
