@@ -7,8 +7,8 @@
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;900&family=Crimson+Text:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
 <style>
 :root{
-  --red: #8b0000; --red-dim: #4a0000; --gold: #b39b59; --gold-dim: #5c4c26;
-  --bg: #020101; --text: #e0d5c1; --text-dim: #7a6e5d; --ui-scale: 1;
+  --red:#c0392b;--red-dim:#7a1f15;--gold:#c9a84c;--gold-dim:#7a6230;
+  --bg:#040202;--text:#d4c4a8;--text-dim:#6b5c47;--ui-scale:1;
 }
 *{margin:0;padding:0;box-sizing:border-box;}
 body{background:#000;overflow:hidden;touch-action:none;}
@@ -44,27 +44,25 @@ canvas#gameCanvas{display:block;width:100vw;height:100vh;}
 .s-ornament{font-size:calc(10px*var(--ui-scale));letter-spacing:8px;color:var(--text-dim);margin-bottom:18px;opacity:.5;}
 .s-title{font-size:calc(62px*var(--ui-scale));letter-spacing:14px;color:var(--text);font-weight:900;margin-bottom:8px;
   animation:glitch 5s infinite;
-  text-shadow:0 0 50px rgba(139,0,0,.4),0 0 100px rgba(74,0,0,.2);}
-@keyframes glitch{0%,92%,100%{text-shadow:0 0 50px rgba(139,0,0,.4)}
-  93%{text-shadow:-3px 0 #8b0000,3px 0 #003cff;transform:translate(-2px)}
-  95%{text-shadow:3px 0 #8b0000,-3px 0 #003cff;transform:translate(2px)}
+  text-shadow:0 0 50px rgba(180,80,40,.4),0 0 100px rgba(140,25,10,.2);}
+@keyframes glitch{0%,92%,100%{text-shadow:0 0 50px rgba(180,80,40,.4)}
+  93%{text-shadow:-3px 0 #ff2200,3px 0 #003cff;transform:translate(-2px)}
+  95%{text-shadow:3px 0 #ff2200,-3px 0 #003cff;transform:translate(2px)}
   97%{transform:translate(0)}}
 .s-sub{font-size:calc(11px*var(--ui-scale));letter-spacing:5px;color:var(--text-dim);
   margin-bottom:48px;font-family:'Crimson Text',serif;font-style:italic;}
-
-/* Обновленная кнопка */
-.s-btn{background:rgba(10,5,2,0.6);border:1px solid rgba(92,76,38,0.3);color:var(--text);
+.s-btn{background:transparent;border:1px solid var(--red-dim);color:var(--red);
   font-family:'Cinzel',serif;font-size:calc(11px*var(--ui-scale));letter-spacing:6px;
-  padding:calc(15px*var(--ui-scale)) calc(44px*var(--ui-scale));cursor:pointer;
-  transition:all 0.5s cubic-bezier(0.4, 0, 0.2, 1);margin-bottom:20px;position:relative;overflow:hidden;width:280px;backdrop-filter:blur(4px);}
+  padding:calc(13px*var(--ui-scale)) calc(44px*var(--ui-scale));cursor:pointer;
+  transition:all .4s;margin-bottom:20px;position:relative;overflow:hidden;width:280px;}
 .s-btn::before{content:'';position:absolute;inset:0;
-  background:linear-gradient(90deg,transparent,rgba(139,0,0,.15),transparent);
+  background:linear-gradient(90deg,transparent,rgba(192,57,43,.15),transparent);
   transform:translateX(-100%);transition:transform .6s;}
 .s-btn:hover::before{transform:translateX(100%);}
-.s-btn:hover{border-color:var(--gold);background:rgba(20,10,5,0.8);
-  letter-spacing:8px;box-shadow:0 0 25px rgba(179,155,89,0.15);transform:translateY(-2px);}
+.s-btn:hover{border-color:var(--red);background:rgba(192,57,43,.08);
+  letter-spacing:8px;box-shadow:0 0 20px rgba(192,57,43,.3);}
 .s-btn.gold{border-color:var(--gold-dim);color:var(--gold);}
-.s-btn.gold:hover{border-color:var(--gold);background:rgba(179,155,89,.08);box-shadow:0 0 20px rgba(179,155,89,.2);}
+.s-btn.gold:hover{border-color:var(--gold);background:rgba(201,168,76,.08);box-shadow:0 0 20px rgba(201,168,76,.2);}
 
 /* Platform select */
 #platform-panel{display:none;z-index:230;flex-direction:column;align-items:center;
@@ -74,7 +72,7 @@ canvas#gameCanvas{display:block;width:100vw;height:100vh;}
   display:flex;flex-direction:column;align-items:center;justify-content:center;
   cursor:pointer;transition:all .4s;font-family:'Cinzel',serif;gap:16px;}
 .platform-card:hover{border-color:var(--gold);background:rgba(30,18,5,.8);
-  box-shadow:0 0 30px rgba(179,155,89,.15);transform:translateY(-4px);}
+  box-shadow:0 0 30px rgba(201,168,76,.15);transform:translateY(-4px);}
 .platform-icon{font-size:48px;}
 .platform-name{font-size:12px;letter-spacing:5px;color:var(--text);}
 .platform-sub{font-size:9px;letter-spacing:3px;color:var(--text-dim);font-family:'Crimson Text',serif;}
@@ -90,11 +88,9 @@ canvas#gameCanvas{display:block;width:100vw;height:100vh;}
 #notes-hud{text-align:right;}
 #notes-label{font-size:calc(8px*var(--ui-scale));letter-spacing:4px;color:var(--text-dim);margin-bottom:6px;}
 #notes-boxes{display:flex;gap:5px;justify-content:flex-end;}
-
-/* Обновленные записки */
-.note-box{width:calc(14px*var(--ui-scale));height:calc(18px*var(--ui-scale));
-  border:1px solid rgba(122,110,93,0.3);border-radius:2px;background:rgba(0,0,0,0.4);transition:all .4s;position:relative;overflow:hidden;}
-.note-box.collected{border-color:var(--gold-dim);background:linear-gradient(135deg,rgba(92,76,38,0.4),rgba(0,0,0,0.8));box-shadow:0 0 10px rgba(179,155,89,0.2);}
+.note-box{width:calc(13px*var(--ui-scale));height:calc(17px*var(--ui-scale));
+  border:1px solid #3a2a1a;border-radius:2px;background:transparent;transition:all .4s;position:relative;overflow:hidden;}
+.note-box.collected{border-color:var(--gold-dim);background:linear-gradient(135deg,#3d2a08,#1a1005);}
 .note-box.collected::after{content:'';position:absolute;inset:2px;background:var(--gold);opacity:.6;
   clip-path:polygon(50% 0%,100% 100%,0% 100%);}
 
@@ -103,12 +99,9 @@ canvas#gameCanvas{display:block;width:100vw;height:100vh;}
   text-align:center;display:flex;flex-direction:column;align-items:center;gap:8px;}
 #stamina-wrap{width:calc(200px*var(--ui-scale));text-align:center;}
 #stamina-label-text{font-size:calc(8px*var(--ui-scale));letter-spacing:4px;color:var(--text-dim);margin-bottom:5px;}
-
-/* Обновленная выносливость */
-#stamina-track{height:1px;background:rgba(255,255,255,0.1);border-radius:2px;border:none;overflow:hidden;box-shadow:0 0 10px rgba(0,0,0,0.8);}
-#stamina-bar-inner{height:100%;background:var(--text);
-  border-radius:2px;transition:width .15s, background-color 0.3s;box-shadow:0 0 8px rgba(224,213,193,0.5);}
-
+#stamina-track{height:2px;background:#1a1008;border-radius:2px;border:1px solid #2a1a08;overflow:hidden;}
+#stamina-bar-inner{height:100%;background:linear-gradient(90deg,#7a1f15,#c0392b);
+  border-radius:2px;transition:width .15s;box-shadow:0 0 5px #c0392b;}
 #crouch-indicator{font-size:calc(8px*var(--ui-scale));letter-spacing:4px;color:var(--gold-dim);
   opacity:0;transition:opacity .3s;}
 #crouch-indicator.active{opacity:1;}
@@ -154,7 +147,7 @@ canvas#gameCanvas{display:block;width:100vw;height:100vh;}
 /* Minimap */
 #minimap-wrap{position:absolute;bottom:calc(22px*var(--ui-scale));right:calc(22px*var(--ui-scale));
   width:calc(150px*var(--ui-scale));height:calc(150px*var(--ui-scale));
-  border:1px solid rgba(92,76,38,0.3);background:rgba(4,2,1,.88);border-radius:4px;overflow:hidden;}
+  border:1px solid #2a1a08;background:rgba(4,2,1,.88);border-radius:4px;overflow:hidden;}
 #minimap-label{position:absolute;top:5px;left:7px;font-size:calc(7px*var(--ui-scale));
   letter-spacing:3px;color:var(--text-dim);z-index:2;pointer-events:none;}
 #minimapCanvas{width:100%;height:100%;display:block;}
@@ -165,11 +158,11 @@ canvas#gameCanvas{display:block;width:100vw;height:100vh;}
 .pause-title{font-size:calc(36px*var(--ui-scale));letter-spacing:12px;color:var(--text);
   margin-bottom:40px;font-weight:900;}
 .pause-menu{display:flex;flex-direction:column;gap:14px;width:260px;}
-.pause-btn{background:transparent;border:1px solid rgba(92,76,38,0.3);color:var(--text-dim);
+.pause-btn{background:transparent;border:1px solid #3a2010;color:var(--text-dim);
   font-family:'Cinzel',serif;font-size:calc(10px*var(--ui-scale));letter-spacing:5px;
   padding:12px 20px;cursor:pointer;transition:all .3s;text-align:left;
   display:flex;align-items:center;gap:12px;}
-.pause-btn:hover{border-color:var(--gold-dim);color:var(--gold);background:rgba(179,155,89,.05);}
+.pause-btn:hover{border-color:var(--gold-dim);color:var(--gold);background:rgba(201,168,76,.05);}
 .pause-btn span{opacity:.5;font-size:16px;}
 
 /* ═══ SETTINGS PANEL ═══ */
@@ -185,20 +178,20 @@ canvas#gameCanvas{display:block;width:100vw;height:100vh;}
   width:160px;height:2px;background:#2a1608;border-radius:2px;outline:none;cursor:pointer;}
 .horror-slider::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;
   width:12px;height:12px;border-radius:50%;background:var(--gold);cursor:pointer;
-  box-shadow:0 0 8px rgba(179,155,89,.4);}
+  box-shadow:0 0 8px rgba(201,168,76,.4);}
 .horror-slider::-moz-range-thumb{width:12px;height:12px;border-radius:50%;
   background:var(--gold);cursor:pointer;border:none;}
 .slider-val{font-size:calc(9px*var(--ui-scale));color:var(--gold);letter-spacing:2px;min-width:30px;}
 /* Quality buttons */
 .quality-btns{display:flex;gap:6px;}
 .q-btn{font-family:'Cinzel',serif;font-size:calc(8px*var(--ui-scale));letter-spacing:3px;
-  padding:6px 12px;border:1px solid rgba(92,76,38,0.3);background:transparent;color:var(--text-dim);
+  padding:6px 12px;border:1px solid #3a2010;background:transparent;color:var(--text-dim);
   cursor:pointer;transition:all .3s;}
-.q-btn.active{border-color:var(--gold-dim);color:var(--gold);background:rgba(179,155,89,.08);}
+.q-btn.active{border-color:var(--gold-dim);color:var(--gold);background:rgba(201,168,76,.08);}
 /* Toggle */
-.horror-toggle{width:36px;height:18px;background:#1a0c06;border:1px solid rgba(92,76,38,0.3);
+.horror-toggle{width:36px;height:18px;background:#1a0c06;border:1px solid #3a2010;
   border-radius:9px;position:relative;cursor:pointer;transition:all .3s;}
-.horror-toggle.on{background:rgba(179,155,89,.2);border-color:var(--gold-dim);}
+.horror-toggle.on{background:rgba(201,168,76,.2);border-color:var(--gold-dim);}
 .horror-toggle::after{content:'';position:absolute;width:12px;height:12px;
   background:#4a2a10;border-radius:50%;top:2px;left:2px;transition:all .3s;}
 .horror-toggle.on::after{left:20px;background:var(--gold);}
@@ -208,20 +201,20 @@ canvas#gameCanvas{display:block;width:100vw;height:100vh;}
 #phone-controls{position:fixed;inset:0;pointer-events:none;z-index:250;display:none;}
 #joystick-area{position:absolute;bottom:40px;left:30px;width:140px;height:140px;pointer-events:all;}
 #joystick-base{width:130px;height:130px;border-radius:50%;
-  border:2px solid rgba(179,155,89,.3);background:rgba(4,2,1,.5);
+  border:2px solid rgba(201,168,76,.3);background:rgba(4,2,1,.5);
   display:flex;align-items:center;justify-content:center;}
 #joystick-thumb{width:50px;height:50px;border-radius:50%;
-  background:rgba(179,155,89,.4);border:1px solid var(--gold-dim);
+  background:rgba(201,168,76,.4);border:1px solid var(--gold-dim);
   position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);transition:none;}
 #phone-btns{position:absolute;bottom:40px;right:30px;display:flex;flex-direction:column;gap:12px;pointer-events:all;}
-.ph-btn{width:60px;height:60px;border-radius:50%;border:2px solid rgba(179,155,89,.4);
+.ph-btn{width:60px;height:60px;border-radius:50%;border:2px solid rgba(201,168,76,.4);
   background:rgba(4,2,1,.6);color:var(--gold);font-family:'Cinzel',serif;
   font-size:10px;letter-spacing:1px;display:flex;align-items:center;justify-content:center;
   cursor:pointer;-webkit-tap-highlight-color:transparent;user-select:none;}
-.ph-btn:active{background:rgba(179,155,89,.15);}
+.ph-btn:active{background:rgba(201,168,76,.15);}
 #phone-look-area{position:absolute;inset:0;pointer-events:all;}
 #ph-run-btn{position:absolute;bottom:40px;right:110px;pointer-events:all;}
-.ph-run-btn-el{width:55px;height:55px;border-radius:50%;border:2px solid rgba(139,0,0,.4);
+.ph-run-btn-el{width:55px;height:55px;border-radius:50%;border:2px solid rgba(192,57,43,.4);
   background:rgba(4,2,1,.6);color:var(--red);font-size:9px;letter-spacing:1px;
   display:flex;align-items:center;justify-content:center;font-family:'Cinzel',serif;
   cursor:pointer;user-select:none;}
@@ -246,17 +239,21 @@ canvas#gameCanvas{display:block;width:100vw;height:100vh;}
 </head>
 <body>
 
+<!-- START BACKGROUND -->
 <canvas id="start-bg-canvas"></canvas>
 <canvas id="particles-canvas"></canvas>
 <canvas id="start-monster-canvas"></canvas>
 <div id="blood-overlay"></div>
 
+<!-- GAME CANVAS -->
 <canvas id="gameCanvas" style="display:none"></canvas>
 
+<!-- EFFECTS -->
 <div id="scanlines"></div>
 <div id="noise"></div>
 <div id="eye-blink"></div>
 
+<!-- HUD -->
 <div id="hud" style="display:none">
   <div id="top-bar">
     <div>
@@ -294,6 +291,7 @@ canvas#gameCanvas{display:block;width:100vw;height:100vh;}
   </div>
 </div>
 
+<!-- PHONE CONTROLS -->
 <div id="phone-controls">
   <div id="phone-look-area"></div>
   <div id="joystick-area">
@@ -308,6 +306,7 @@ canvas#gameCanvas{display:block;width:100vw;height:100vh;}
   </div>
 </div>
 
+<!-- START SCREEN -->
 <div class="screen" id="start-screen">
   <div id="start-content">
     <div class="s-ornament">— HORROR —</div>
@@ -317,6 +316,7 @@ canvas#gameCanvas{display:block;width:100vw;height:100vh;}
   </div>
 </div>
 
+<!-- PLATFORM SELECT -->
 <div class="screen" id="platform-panel">
   <div class="s-ornament">— ВЫБОР УПРАВЛЕНИЯ —</div>
   <div class="s-title" style="font-size:32px;letter-spacing:10px;margin-bottom:30px;">КАК ВЫ ИГРАЕТЕ?</div>
@@ -335,6 +335,7 @@ canvas#gameCanvas{display:block;width:100vw;height:100vh;}
   <button class="s-btn" onclick="hidePlatformSelect()" style="width:200px;font-size:9px;">← НАЗАД</button>
 </div>
 
+<!-- PAUSE SCREEN -->
 <div class="screen" id="pause-screen">
   <div class="pause-title">ПАУЗА</div>
   <div class="pause-menu">
@@ -345,6 +346,7 @@ canvas#gameCanvas{display:block;width:100vw;height:100vh;}
   </div>
 </div>
 
+<!-- SETTINGS -->
 <div class="screen" id="settings-panel">
   <div class="settings-title">НАСТРОЙКИ</div>
   <div class="settings-grid">
@@ -409,6 +411,7 @@ canvas#gameCanvas{display:block;width:100vw;height:100vh;}
   <button class="s-btn settings-back" onclick="hideSettings()">← НАЗАД</button>
 </div>
 
+<!-- CAUGHT -->
 <div class="screen" id="caught-screen" style="display:none">
   <div class="s-ornament">— КОНЕЦ —</div>
   <div class="s-title">ПОЙМАН</div>
@@ -417,6 +420,7 @@ canvas#gameCanvas{display:block;width:100vw;height:100vh;}
   <button class="s-btn gold" onclick="goToMainMenu()" style="font-size:9px;padding:10px 30px;">ГЛАВНОЕ МЕНЮ</button>
 </div>
 
+<!-- WIN -->
 <div class="screen" id="win-screen" style="display:none">
   <div class="s-ornament">— ПОБЕДА —</div>
   <div class="s-title">ТЫ ВЫЖИЛ</div>
@@ -458,7 +462,7 @@ function updateSettings(){
   document.getElementById('sv-vol').textContent = cfg.volume;
   document.getElementById('sv-ui').textContent = cfg.uiScale;
   applyUIScale(cfg.uiScale);
-  if(flashlight) flashlight.intensity = cfg.flashPower * 1.2;
+  if(flashlight) flashlight.intensity = cfg.flashPower * 0.8;
 }
 function setQuality(q){
   cfg.quality = q;
@@ -502,14 +506,14 @@ function resizeStartCanvases(){
 }
 resizeStartCanvases();
 
-// Blood drips (Обновленные, более темные)
+// Blood drips
 function spawnDrip(){
   const d=document.createElement('div');
   d.className='blood-drip';
   const x=Math.random()*window.innerWidth;
   const len=60+Math.random()*220;
   const dur=2+Math.random()*4,delay=Math.random()*3;
-  d.style.cssText=`left:${x}px;height:${len}px;width:${1+Math.random()*2}px;background:linear-gradient(180deg, #2b0000, rgba(43,0,0,0.6), transparent);animation-duration:${dur}s;animation-delay:${delay}s;opacity:${.15+Math.random()*.4}`;
+  d.style.cssText=`left:${x}px;height:${len}px;width:${1.5+Math.random()*3.5}px;background:linear-gradient(180deg,#8a0000,rgba(150,0,0,.5),transparent);animation-duration:${dur}s;animation-delay:${delay}s;opacity:${.35+Math.random()*.65}`;
   document.getElementById('blood-overlay').appendChild(d);
   setTimeout(()=>{
     const p=document.createElement('div');p.className='blood-pool';
@@ -848,13 +852,11 @@ function init(){
   clock=new THREE.Clock();
   minimapCtx=document.getElementById('minimapCanvas').getContext('2d');
   minimapScale=150/ROOM;
-  
-  // Lighting (Обновленный, более мрачный свет)
-  scene.add(new THREE.AmbientLight(0x1a0f08, 0.4));
-  scene.add(new THREE.HemisphereLight(0x2a1a10, 0x050302, 0.3));
-  
-  // Flashlight (Более холодный и реалистичный)
-  flashlight=new THREE.SpotLight(0xede0c8,cfg.flashPower*1.2,35,Math.PI/4.5,.4,1.5);
+  // Lighting
+  scene.add(new THREE.AmbientLight(0x3a220e,2.0));
+  scene.add(new THREE.HemisphereLight(0x4a2d12,0x180806,1.0));
+  // Flashlight
+  flashlight=new THREE.SpotLight(0xfff5e0,cfg.flashPower*.8,30,Math.PI/4.2,.3,1.1);
   flashlight.castShadow=cfg.quality==='high';
   flashlight.shadow.mapSize.width=flashlight.shadow.mapSize.height=512;
   camera.add(flashlight);camera.add(flashlight.target);
@@ -1202,7 +1204,7 @@ function onMouse(e){
 }
 function toggleFlash(){
   flashlightOn=!flashlightOn;
-  flashlight.intensity=flashlightOn?cfg.flashPower*1.2:0;
+  flashlight.intensity=flashlightOn?cfg.flashPower*.8:0;
   document.getElementById('flash-dot').className=flashlightOn?'':'off';
 }
 function toggleCrouch(){
@@ -1386,16 +1388,8 @@ function animate(){
   // Crouch / height
   const targetY=isCrouching?1.1:1.72;
   camera.position.y+=(targetY-camera.position.y)*.12;
-  
-  // Bob (Улучшенный)
-  if (moving) {
-    const bobSpeed = run ? 10 : 5;
-    const bobAmount = run ? 0.04 : 0.02;
-    camera.position.y += Math.sin(t * bobSpeed) * bobAmount;
-    camera.rotation.z = Math.sin(t * bobSpeed * 0.5) * (bobAmount * 0.5); 
-  } else {
-    camera.rotation.z += (0 - camera.rotation.z) * 0.1;
-  }
+  // Bob
+  if(moving) camera.position.y+=Math.sin(t*(run?8:4))*.028;
 
   player.stamina=run&&moving?Math.max(0,player.stamina-dt*22):Math.min(100,player.stamina+dt*16);
   document.getElementById('stamina-bar-inner').style.width=player.stamina+'%';
@@ -1404,7 +1398,7 @@ function animate(){
   if(flashlightOn){
     flickerTimer+=dt;
     if(flickerTimer>.12){
-      if(Math.random()<.025){const base=cfg.flashPower*1.2;flashlight.intensity=.15;setTimeout(()=>{if(flashlightOn) flashlight.intensity=base;},45+Math.random()*75);}
+      if(Math.random()<.025){const base=cfg.flashPower*.8;flashlight.intensity=.15;setTimeout(()=>{if(flashlightOn) flashlight.intensity=base;},45+Math.random()*75);}
       flickerTimer=0;
     }
   }
